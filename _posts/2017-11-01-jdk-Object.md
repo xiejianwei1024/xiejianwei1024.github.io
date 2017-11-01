@@ -37,7 +37,7 @@ public void toStringTest() {
 
 运行结果：java.lang.Object@3654919e
 
-解析：返回对象的一个字符串表示：类的全名+“@”+16进制哈希码
+解析：返回对象的一个字符串表示：类的全名+“@”+16进制哈希码。
 
 ## 2. Object 类的 equals() 方法
 
