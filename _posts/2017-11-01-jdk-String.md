@@ -38,12 +38,12 @@ public boolean equals(Object anObject) {
 ### 例子：
 
 ```java
-	@Test
-	public void equalsTest() {
-		String str = "abc";
-		String str2 = "abc";
-		System.out.println(str.equals(str2));
-	}
+@Test
+public void equalsTest() {
+	String str = "abc";
+	String str2 = "abc";
+	System.out.println(str.equals(str2));
+}
 ```
 
 运行结果：true

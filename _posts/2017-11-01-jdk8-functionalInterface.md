@@ -1,5 +1,4 @@
 ---
-date: 2017-05-28 10:14
 layout: post
 title: jdk8 函数式接口
 ---
