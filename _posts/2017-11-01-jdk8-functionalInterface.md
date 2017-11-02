@@ -163,3 +163,108 @@ after - 在应用当前函数之后，所应用的函数。
 ----------------------------------------
 思考一个问题：为什么 BiFunction 接口中 没有 compose 方法？  
 如果有 compose 方法，那么参数一定是 BiFunction 类型的，而 compose 方法会先对输入应用 BiFunction 函数，会返回一个结果，然后再对结果应用当前的 BiFunction 函数，那么矛盾产生了。<font color="#FF0000">当前的 BiFuntion 函数的输入需要两个参数，而即将作为参数的结果只有一个。因为 BiFunction 函数接受两个参数，只返回一个结果。</font>
+
+----------------------------------------
+### 3). Predicate（java.util.function.Predicate）
+
+让我们看看 javadoc 是怎么描述的？
+
+```java
+@FunctionalInterface
+public interface Predicate<T> {
+
+    boolean test(T t);
+
+    default Predicate<T> and(Predicate<? super T> other) {
+        Objects.requireNonNull(other);
+        return (t) -> test(t) && other.test(t);
+    }
+
+    default Predicate<T> negate() {
+        return (t) -> !test(t);
+    }
+
+    default Predicate<T> or(Predicate<? super T> other) {
+        Objects.requireNonNull(other);
+        return (t) -> test(t) || other.test(t);
+    }
+
+    static <T> Predicate<T> isEqual(Object targetRef) {
+        return (null == targetRef)
+                ? Objects::isNull
+                : object -> targetRef.equals(object);
+    }
+}
+```
+
+表示一个参数的谓词（布尔值函数）。
+
+这是一个函数式接口，函数式方法是 test(Object)。
+
+T - Predicate 的输入类型。
+
+----------------------------------------
+抽象方法：
+```java
+boolean test(T t);
+```
+在给定的参数上计算当前的 Predicate。
+
+t - 输入参数。
+返回：如果输入参数匹配 Predicate，返回 true，否则返回 false。
+
+----------------------------------------
+默认方法：
+```java
+default Predicate<T> and(Predicate<? super T> other) {
+    Objects.requireNonNull(other);
+    return (t) -> test(t) && other.test(t);
+}
+```
+返回一个组合的 Predicate，表示当前的 Predicate 和另外一个 Predicate 短路的逻辑与。当计算组合的 Predicate 时，如果当前的 Predicate 返回 false，那么 other Predicate 不会被计算。
+
+在计算任意一个 Predicate 期间抛出的任何异常都取决于调用者；如果计算当前的 Predicate 抛出了异常，那么将不会计算 other Predicate。
+
+other - 一个 Predicate 将要和当前的 Predicate 进行逻辑与。
+返回：一个组合的 Predicate，表示当前的 Predicate 和 other Predicate的短路逻辑与。
+抛出 NullPointerException：如果 other 是 null。
+
+----------------------------------------
+默认方法：
+```java
+default Predicate<T> negate() {
+    return (t) -> !test(t);
+}
+```
+返回一个 Predicate，表示当前的 Predicate的逻辑否定。
+
+----------------------------------------
+默认方法：
+```java
+default Predicate<T> or(Predicate<? super T> other) {
+    Objects.requireNonNull(other);
+    return (t) -> test(t) || other.test(t);
+}
+```
+返回一个 Predicate，表示当前的 Predicate 和 另外一个 Predicate 的短路逻辑或。当计算组合的 Predicate时，如果当前的 Predicate 是 true，那么 other Predicate 不会被计算。
+
+在计算任意一个 Predicate期间抛出的任何异常都取决于调用者。如果计算当前的 Predicate 抛出了异常，那么 other Predicate 将不会被计算。
+
+other - 一个 Predicate 将要和当前的 Predicate 进行 逻辑或。
+返回：一个组合的 Predicate，表示当前的 Predicate 和 other Predicate 的短路逻辑或。
+抛出 NullPointerException：如果 other 是 null。
+
+----------------------------------------
+静态方法：
+```java
+static <T> Predicate<T> isEqual(Object targetRef) {
+    return (null == targetRef)
+            ? Objects::isNull
+            : object -> targetRef.equals(object);
+}
+```
+返回一个组合的 Predicate，根据 Objects 的 equals(Object, Object) 测试两个参数是否相等。
+
+T - Predicate 的参数类型。
+targetRef - 用于比较相等的对象引用，可以是 null。
+返回：一个 Predicate，根据 Objects 的 equals(Object, Object) 测试两个参数是否相等。
