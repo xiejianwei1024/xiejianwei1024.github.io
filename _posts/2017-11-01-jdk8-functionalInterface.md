@@ -304,3 +304,100 @@ T get();
 ```
 
 得到一个结果。
+
+### 5). java.util.function.BinaryOperator
+
+让我们看看 javadoc 是怎么描述的？
+
+```java
+@FunctionalInterface
+public interface BinaryOperator<T> extends BiFunction<T,T,T> {
+
+    public static <T> BinaryOperator<T> minBy(Comparator<? super T> comparator) {
+        Objects.requireNonNull(comparator);
+        return (a, b) -> comparator.compare(a, b) <= 0 ? a : b;
+    }
+
+    public static <T> BinaryOperator<T> maxBy(Comparator<? super T> comparator) {
+        Objects.requireNonNull(comparator);
+        return (a, b) -> comparator.compare(a, b) >= 0 ? a : b;
+    }
+}
+```
+
+表示一种操作，对两个相同类型的操作数，生成一个与操作数相同类型的结果。这是 `BiFunction`，在 <font color="#FF0000">操作数和结果都是相同类型</font>这种情况下的一种特例。
+
+这是一个函数式接口，函数式方法是 `apply(Object, Object)`。
+
+T - 操作数和结果的类型。
+
+----------------------------------------
+静态方法：
+```java
+public static <T> BinaryOperator<T> minBy(Comparator<? super T> comparator) {
+    Objects.requireNonNull(comparator);
+    return (a, b) -> comparator.compare(a, b) <= 0 ? a : b;
+}
+```
+
+返回一个 `BinaryOperator` ，它 根据指定的 `Comparator` 返回两个元素中较小的那个。
+
+T - comparator 输入参数的类型。
+
+comparator - 一个 `Comparator` ，用于比较两个值。
+
+返回：一个 `BinaryOperator` ，它根据指定的 `Comparator` 两个操作数中较小的那个。 
+
+NullPointerException - 如果参数是 null。
+
+----------------------------------------
+静态方法：
+```java
+public static <T> BinaryOperator<T> maxBy(Comparator<? super T> comparator) {
+    Objects.requireNonNull(comparator);
+    return (a, b) -> comparator.compare(a, b) >= 0 ? a : b;
+}
+```
+
+返回一个 `BinaryOperator` ，它 根据指定的 `Comparator` 返回两个元素中较大的那个。
+
+T - comparator 输入参数的类型。
+
+comparator - 一个 `Comparator` ，用于比较两个值。
+
+返回：一个 `BinaryOperator` ，它根据指定的 `Comparator` 两个操作数中较大的那个。 
+
+NullPointerException - 如果参数是 null。
+
+
+### 6). java.util.function.Consumer
+
+让我们看看 javadoc 是怎么描述的？
+
+```java
+@FunctionalInterface
+public interface Consumer<T> {
+
+    void accept(T t);
+
+    default Consumer<T> andThen(Consumer<? super T> after) {
+        Objects.requireNonNull(after);
+        return (T t) -> { accept(t); after.accept(t); };
+    }
+}
+```
+
+表示一种操作，它接受单个参数并且不返回结果。
+
+
+
+
+
+
+
+
+
+
+
+对给定的参数执行此操作。
+
