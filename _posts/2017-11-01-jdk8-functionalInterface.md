@@ -71,7 +71,7 @@ public interface Function<T, R> {
 ```
 
 表示一个函数，接受一个参数，产生一个结果。  
-这是一个函数式接口，函数式方法是 apply(Object)。  
+这是一个函数式接口，函数式方法是 `apply(Object)`。  
 T - 输入类型  
 R - 结果类型
 
@@ -135,7 +135,7 @@ public interface BiFunction<T, U, R> {
 }
 ```
 表示一个函数，接受两个参数，产生一个结果。这是 Function 的两个参数的一种特化形式。  
-这是一个函数式接口，函数式方法是 apply(Object, Object)。  
+这是一个函数式接口，函数式方法是 `apply(Object, Object)`。  
 T - 函数的第一个参数类型  
 U - 函数的第二个参数类型  
 R - 函数的结果类型
@@ -199,7 +199,7 @@ public interface Predicate<T> {
 
 表示一个参数的谓词（布尔值函数）。
 
-这是一个函数式接口，函数式方法是 test(Object)。
+这是一个函数式接口，函数式方法是 `test(Object)`。
 
 T - Predicate 的输入类型。
 
@@ -211,6 +211,7 @@ boolean test(T t);
 在给定的参数上计算当前的 Predicate。
 
 t - 输入参数。
+
 返回：如果输入参数匹配 Predicate，返回 true，否则返回 false。
 
 ----------------------------------------
@@ -226,7 +227,9 @@ default Predicate<T> and(Predicate<? super T> other) {
 在计算任意一个 Predicate 期间抛出的任何异常都取决于调用者；如果计算当前的 Predicate 抛出了异常，那么将不会计算 other Predicate。
 
 other - 一个 Predicate 将要和当前的 Predicate 进行逻辑与。
+
 返回：一个组合的 Predicate，表示当前的 Predicate 和 other Predicate的短路逻辑与。
+
 抛出 NullPointerException：如果 other 是 null。
 
 ----------------------------------------
@@ -251,7 +254,9 @@ default Predicate<T> or(Predicate<? super T> other) {
 在计算任意一个 Predicate期间抛出的任何异常都取决于调用者。如果计算当前的 Predicate 抛出了异常，那么 other Predicate 将不会被计算。
 
 other - 一个 Predicate 将要和当前的 Predicate 进行 逻辑或。
+
 返回：一个组合的 Predicate，表示当前的 Predicate 和 other Predicate 的短路逻辑或。
+
 抛出 NullPointerException：如果 other 是 null。
 
 ----------------------------------------
@@ -266,5 +271,36 @@ static <T> Predicate<T> isEqual(Object targetRef) {
 返回一个组合的 Predicate，根据 Objects 的 equals(Object, Object) 测试两个参数是否相等。
 
 T - Predicate 的参数类型。
+
 targetRef - 用于比较相等的对象引用，可以是 null。
+
 返回：一个 Predicate，根据 Objects 的 equals(Object, Object) 测试两个参数是否相等。
+
+----------------------------------------
+### 4). Supplier（java.util.function.Supplier）
+
+让我们看看 javadoc 是怎么描述的？
+
+```java
+@FunctionalInterface
+public interface Supplier<T> {
+
+    T get();
+}
+```
+
+代表结果的供应者。
+
+没有要求每次调用 Supplier 的时候都必须返回一个新的或者不同的结果。（在多次调用 Supplier 时，也可以返回相同的结果）
+
+这是一个函数式接口，函数式方法是 `get()`。
+
+T - Supplier 供应的结果类型。
+
+----------------------------------------
+抽象方法：
+```java
+T get();
+```
+
+得到一个结果。
