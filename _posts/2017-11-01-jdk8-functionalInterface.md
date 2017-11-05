@@ -44,7 +44,7 @@ public @interface FunctionalInterface {}
 ----------------------------------------
 Java 8 新增加的函数式接口位于 java.util.function 包下。
 
-### 1). Function（java.util.function.Function）
+### 1). java.util.function.Function
 
 让我们看看 javadoc 是怎么描述的？
 
@@ -118,7 +118,7 @@ T - 函数的输入和输出对象的类型。
 返回：一个函数，总是返回输入参数。
 
 ----------------------------------------
-### 2). BiFunction（java.util.function.BiFunction）
+### 2). java.util.function.BiFunction
 
 让我们看看 javadoc 是怎么描述的？
 
@@ -165,7 +165,7 @@ after - 在应用当前函数之后，所应用的函数。
 如果有 compose 方法，那么参数一定是 BiFunction 类型的，而 compose 方法会先对输入应用 BiFunction 函数，会返回一个结果，然后再对结果应用当前的 BiFunction 函数，那么矛盾产生了。<font color="#FF0000">当前的 BiFuntion 函数的输入需要两个参数，而即将作为参数的结果只有一个。因为 BiFunction 函数接受两个参数，只返回一个结果。</font>
 
 ----------------------------------------
-### 3). Predicate（java.util.function.Predicate）
+### 3). java.util.function.Predicate
 
 让我们看看 javadoc 是怎么描述的？
 
@@ -277,7 +277,7 @@ targetRef - 用于比较相等的对象引用，可以是 null。
 返回：一个 Predicate，根据 Objects 的 equals(Object, Object) 测试两个参数是否相等。
 
 ----------------------------------------
-### 4). Supplier（java.util.function.Supplier）
+### 4). java.util.function.Supplier
 
 让我们看看 javadoc 是怎么描述的？
 
