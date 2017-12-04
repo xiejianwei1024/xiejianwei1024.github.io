@@ -23,8 +23,10 @@ mapper - 应用到每个元素的 non-interfering, stateless function。
 ### 1.1 举例
 描述：给定一个单词列表，返回另一个单词列表，显示每个单词中有几个字母。
 ```java
-List<String> words = Arrays.asList("Hello", "World", "HelloWorld");
-List<Integer> wordLengths = words.stream().map(String::length).collect(Collectors.toList());
+List<String> l1 = Arrays.asList("Hello", "World", "HelloWorld");
+List<Integer> l2 = l1.stream()
+                     .map(String::length)
+                     .collect(Collectors.toList());
 ```
 
 ## 2. flatMap（流的扁平化）
@@ -33,4 +35,8 @@ List<Integer> wordLengths = words.stream().map(String::length).collect(Collector
 <R> Stream<R> flatMap(Function<? super T, ? extends Stream<? extends R>> mapper);
 ```
 
-返回<font color="#FF0000">一个新的流</font>，包含的结果会替换掉当前流中的每一个元素，用什么（）替换
+返回<font color="#FF0000">一个新的流</font>，包含的结果会替换掉当前流中的每一个元素，用（映射后的流中的内容）替换，这个映射后的流通过（对每一个元素应用所提供的映射函数）产生的
+
+
+### 2.1 举例
+描述：对于一张单词表，如何返回一张列表，列出里面各不相同的字符呢？例如：给定单词列表["Hello", "World"]，返回列表["H","e","l", "o","W","r","d"]。
