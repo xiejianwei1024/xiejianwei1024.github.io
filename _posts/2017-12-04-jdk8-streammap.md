@@ -21,7 +21,9 @@ mapper - 应用到每个元素的 non-interfering, stateless function。
 ----------------------------------------
 
 ### 1.1 举例
+
 描述：给定一个单词列表，返回另一个单词列表，显示每个单词中有几个字母。
+
 ```java
 List<String> l1 = Arrays.asList("Hello", "World", "HelloWorld");
 List<Integer> l2 = l1.stream()
@@ -39,4 +41,15 @@ List<Integer> l2 = l1.stream()
 
 
 ### 2.1 举例
+
 描述：对于一张单词表，如何返回一张列表，列出里面各不相同的字符呢？例如：给定单词列表["Hello", "World"]，返回列表["H","e","l", "o","W","r","d"]。
+
+```java
+List<String> words = Arrays.asList("Hello", "World");
+//第一个版本
+words.stream()
+        .map(word -> word.split(""))
+        .distinct()
+        .collect(Collectors.toList());
+```
+这段程序是有问题的。传递给 map 的 lambda 为每个单词返回了一个 String[](String列表)。map返回的流实际上是 Stream<String[]> 类型的。而我们想要的是<font color="#FF0000">用 Stream<String> 来表示一个字符流</font>。
