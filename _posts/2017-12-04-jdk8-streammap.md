@@ -52,4 +52,4 @@ words.stream()
         .distinct()
         .collect(Collectors.toList());
 ```
-这段程序是有问题的。传递给 map 的 lambda 为每个单词返回了一个 String[]（String列表）。map返回的流实际上是 Stream<String[]> 类型的。而我们想要的是<font color="#FF0000">用 Stream<String> 来表示一个字符流</font>。
+这段程序是有问题的。传递给 map 的 lambda 为每个单词返回了一个 String[]（String列表）。map返回的流实际上是 Stream<String[]> 类型的。而我们想要的是用 <font color="#FF0000">Stream<String>来表示一个字符流</font>。
