@@ -32,3 +32,5 @@ List<Integer> wordLengths = words.stream().map(String::length).collect(Collector
 ```java
 <R> Stream<R> flatMap(Function<? super T, ? extends Stream<? extends R>> mapper);
 ```
+
+返回<font color="#FF0000">一个新的流</font>，包含的结果会替换掉当前流中的每一个元素，用什么（）替换
