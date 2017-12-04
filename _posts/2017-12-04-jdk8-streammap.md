@@ -37,10 +37,10 @@ List<Integer> l2 = l1.stream()
 <R> Stream<R> flatMap(Function<? super T, ? extends Stream<? extends R>> mapper);
 ```
 
-返回<font color="#FF0000">一个新的流</font>，新流中包含的结果会替换掉当前流中的每一个元素，用（映射流中的内容）替换，这个映射流通过（对每一个元素应用所提供的映射函数）产生的。每个映射流(在其内容放入此流之后)都会关闭。（如果映射流为空，则使用空流）。这是一个中间操作。
+返回<font color="#FF0000">一个新的流</font>，新流中包含的结果会替换掉当前流中的每一个元素，用（映射流中的内容）替换，这个映射流是通过（对每一个元素应用由我们自己所提供的映射函数）产生的。每个映射流(在其内容放入此流之后)都会关闭。（如果映射流为空，则使用空流）。这是一个中间操作。
 
 注意：  
-flatMap（）操作的作用是对流的元素应用一对多的转换，然后将生成的元素打平成一个新的流。
+flatMap（）操作的作用是对流的元素应用一对多的转换，然后将生成的元素打平成一个新的流。换句话说，flatMap（）让你把一个流中的每个值都换成另一个流，然后把所有的流连接起来（即打平）成为一个流。
 
 
 ### 2.1 举例
@@ -68,7 +68,7 @@ List<String> words = Arrays.asList("Hello", "World");
 //第二个版本
 words.stream()
         .map(word -> word.split(""))
-        .map(wordArray -> Arrays.stream(wordArray))
+        .map(Arrays::stream)
         .distinct()
         .collect(Collectors.toList());
 ```
@@ -77,3 +77,16 @@ words.stream()
 
 ----------------------------------------
 
+使用 flatMap  
+
+```java
+List<String> words = Arrays.asList("Hello", "World");
+//第三个版本
+words.stream()
+        .map(word -> word.split(""))
+        .flatMap(Arrays::stream)
+        .distinct()
+        .collect(Collectors.toList());
+```
+
+使用 flatMap, 各个数组并不是分别映射成一个流，而是映射成流的内容。所有使用 `map(Arrays::stream)` 时生成的单个流都被合并起来，即扁平化为一个流。
