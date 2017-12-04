@@ -37,7 +37,10 @@ List<Integer> l2 = l1.stream()
 <R> Stream<R> flatMap(Function<? super T, ? extends Stream<? extends R>> mapper);
 ```
 
-返回<font color="#FF0000">一个新的流</font>，包含的结果会替换掉当前流中的每一个元素，用（映射后的流中的内容）替换，这个映射后的流通过（对每一个元素应用所提供的映射函数）产生的
+返回<font color="#FF0000">一个新的流</font>，新流中包含的结果会替换掉当前流中的每一个元素，用（映射流中的内容）替换，这个映射流通过（对每一个元素应用所提供的映射函数）产生的。每个映射流(在其内容放入此流之后)都会关闭。（如果映射流为空，则使用空流）。这是一个中间操作。
+
+注意：  
+flatMap（）操作的作用是对流的元素应用一对多的转换，然后将生成的元素打平成一个新的流。
 
 
 ### 2.1 举例
@@ -52,4 +55,25 @@ words.stream()
         .distinct()
         .collect(Collectors.toList());
 ```
-这段程序是有问题的。传递给 map 的 lambda 为每个单词返回了一个 String[]（String列表）。map返回的流实际上是 Stream<String[]> 类型的。而我们想要的是用Stream<String>来表示一个字符流。
+
+这段程序是有问题的。传递给 map 的 lambda 表达式 为每个单词返回了一个 String[]（String列表）。map返回的流实际上是 `Stream<String[]>` 类型的。而我们想要的是用`Stream<String>`来表示一个字符流。
+
+----------------------------------------
+
+尝试使用 map 和 Arrays.stream()  
+我们需要一个字符流，而不是数组流。Arrays.stream() 可以接受一个数组并产生一个流。
+
+```java
+List<String> words = Arrays.asList("Hello", "World");
+//第二个版本
+words.stream()
+        .map(word -> word.split(""))
+        .map(wordArray -> Arrays.stream(wordArray))
+        .distinct()
+        .collect(Collectors.toList());
+```
+
+这个段程序仍然是有问题的。我们现在得到的是一个字符流的列表（`Stream<String>`）。
+
+----------------------------------------
+
