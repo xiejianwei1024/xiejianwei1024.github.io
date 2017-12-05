@@ -31,6 +31,8 @@ List<Integer> l2 = l1.stream()
                      .collect(Collectors.toList());
 ```
 
+----------------------------------------
+
 ## 2. flatMap（流的扁平化）
 
 ```java
@@ -48,6 +50,7 @@ mapper - 是一个 non-interfering, stateless function， 对每个元素应用�
 
 返回一个新流。  
 
+----------------------------------------
 
 ### 2.1 举例
 
@@ -96,3 +99,32 @@ words.stream()
 ```
 
 使用 flatMap, 各个数组并不是分别映射成一个流，而是映射成流的内容。所有使用 `map(Arrays::stream)` 时生成的单个流都被合并起来，即扁平化为一个流。
+
+----------------------------------------
+
+### 2.2 举例
+
+描述：给定两个单词列表["Hi", "Hello", "你好"] 和 ["zhangsan", "lisi", "wangwu", "zhaoliu"]，返回列表["Hi zhangsan", "Hi lisi", "Hi wangwu", "Hi zhaoliu", "Hello zhangsan", "Hello lisi", "Hello wangwu", "Hello zhaoliu", "你好 zhangsan", "你好 lisi", "你好 wangwu", "你好 zhaoliu"]。
+
+```java
+List<String> l1 = Arrays.asList("Hi", "Hello", "你好");
+List<String> l2 = Arrays.asList("zhangsan", "lisi", "wangwu", "zhaoliu");
+List<String> result = l1.stream()
+                        .flatMap(item1 -> l2.stream()
+                                            .map(item2 -> item1 + " " + item2))
+                        .collect(Collectors.toList());
+```
+
+`flatMap()` 接受的 lambda 表达式 返回的是 Stream<String>类型的，首先将 l2字符串 列表转化成为 （Stream<String>类型的）流 ，然后将流中的元素应用函数（的实例即第二个lambda表达式 `item2 -> item1 + " " + item2` ），每个元素都生成新的（Stream<String>类型）流。  
+
+流的表示：|item1, item2|  
+
+第一个流：|"Hi zhangsan", "Hi lisi", "Hi wangwu", "Hi zhaoliu"|，  
+
+第二个流：|"Hello zhangsan", "Hello lisi", "Hello wangwu", "Hello zhaoliu"|，  
+
+第三个流：|"你好 zhangsan", "你好 lisi", "你好 wangwu", "你好 zhaoliu"|  
+
+`flatMap()` 将这三个流连接在一起，生成（打平即扁平化为）一个新的流。流中的元素即三个流中的元素被打平到一个流中了。
+
+新的流：|"Hi zhangsan", "Hi lisi", "Hi wangwu", "Hi zhaoliu", "Hello zhangsan", "Hello lisi", "Hello wangwu", "Hello zhaoliu", "你好 zhangsan", "你好 lisi", "你好 wangwu", "你好 zhaoliu"|
