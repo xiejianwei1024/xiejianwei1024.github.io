@@ -115,7 +115,7 @@ List<String> result = l1.stream()
                         .collect(Collectors.toList());
 ```
 
-`flatMap()` 接受的 lambda 表达式 返回的是 Stream<String>类型的，首先将字符串 列表 l2 转化成为 （ `Stream<String>` 类型的）流 ，然后将流中的元素应用函数（的实例即第二个lambda表达式  `item2 -> item1 + " " + item2`  ），每个元素都生成新（ `Stream<String>` 类型的）流。  
+`flatMap()` 接受的 lambda 表达式 返回的是 Stream<String>类型的，首先将字符串 列表 l2 转化成为 `Stream<String>` 类型的流 ，然后将流中的元素应用函数（的实例即第二个lambda表达式`item2 -> item1 + " " + item2`），每个元素都生成新 `Stream<String>` 类型的流。  
 
 自定义流的表示：\|item1, item2\|  
 
@@ -125,6 +125,6 @@ List<String> result = l1.stream()
 
 第三个流：\|"你好 zhangsan", "你好 lisi", "你好 wangwu", "你好 zhaoliu"\|  
 
-`flatMap()` 将这三个流连接在一起，生成（打平即扁平化为）一个新的流。流中的元素即三个流中的元素被打平到一个流中了。
+`flatMap()` 将这三个流连接在一起，生成（打平即扁平化为）一个新的流。新流中的元素即三个流中的元素被打平到一个流中了。
 
 新的流：\|"Hi zhangsan", "Hi lisi", "Hi wangwu", "Hi zhaoliu", "Hello zhangsan", "Hello lisi", "Hello wangwu", "Hello zhaoliu", "你好 zhangsan", "你好 lisi", "你好 wangwu", "你好 zhaoliu"\|
