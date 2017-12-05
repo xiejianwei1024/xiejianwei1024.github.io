@@ -60,7 +60,7 @@ words.stream()
 
 ----------------------------------------
 
-尝试使用 map 和 Arrays.stream()  
+**尝试使用 map 和 Arrays.stream()**  
 我们需要一个字符流，而不是数组流。Arrays.stream() 可以接受一个数组并产生一个流。
 
 ```java
@@ -77,7 +77,7 @@ words.stream()
 
 ----------------------------------------
 
-使用 flatMap  
+**使用 flatMap**  
 
 ```java
 List<String> words = Arrays.asList("Hello", "World");
