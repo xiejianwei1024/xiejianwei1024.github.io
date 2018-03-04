@@ -48,13 +48,6 @@ title: JVM类加载器
 除了以上七种情况，其他使用类的方式都被看作是<font color="#FF0000">对类的被动使用，都不会导致类的初始化</font>。
 
 
-助记符
-
-getstatic[访问静态变量]  
-putstatic[赋值静态变量]  
-invokestatic[调用静态变量]  
-
-
 初始化一个类的子类  
 class Parent{}  
 class Child extends Parent {}  
@@ -116,3 +109,47 @@ welcome
 -XX:+<option\>，表示开启 option 选项  
 -XX:-<option\>，表示关闭 option 选项  
 -XX:<option\>=value，表示将 option 选项的值设置为 value
+
+
+### 3. 常量池
+----------------------------------------
+
+下面的程序演示常量池：
+```java
+public class MyTest2 {
+    public static void main(String[] args) {
+        System.out.println(MyParent2.str);
+    }
+}
+
+class MyParent2 {
+    public static final String str = "hello world";
+    static {
+        System.out.println("MyParent2 static block");
+    }
+}
+```
+
+程序输出：  
+hello world
+
+----------------------------------------
+
+得出如下结论：  
+<font color="#FF0000">
+1.常量在编译阶段会存入到调用该方法所在类的常量池中,本质上，调用类并没有直接引用到定义常量的类，因此并不会触发定义常量的类的初始化。  
+2.注意：这里指的是将常量存放在 MyTest2 的常量池中，之后 MyTest2 与 MyParent2 就没有任何关系了，甚至，我们可以将 MyParent2.class 文件删除。
+</font>
+
+### 4.助记符 
+通过在终端反编译看到，反编译命令：
+javap -c
+G:\mytools\IdeaProjects\jvm_study\out\production\classes>javap -c com.shengsiyuan.classloader.MyTest2
+
+ * ldc 表示将 int, float, String 类型的常量值从常量池中推送至栈顶
+ * bitpush 表示将单字节（-128 ~ 127）的常量值推送至栈顶
+ * sipush 表示将短整型（-32768 ~ 32767）的常量值推送至栈顶
+ * iconst_1 表示将 int 类型 1 的常量值推送至栈顶（iconst_1 ~ iconst_5）
+ * getstatic [访问静态变量]
+ * putstatic [赋值静态变量]
+ * invokestatic [调用静态变量]
