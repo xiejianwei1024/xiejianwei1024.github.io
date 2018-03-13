@@ -149,7 +149,7 @@ G:\mytools\IdeaProjects\jvm_study\out\production\classes>javap -c com.shengsiyua
  * ldc 表示将 int, float, String 类型的常量值从常量池中推送至栈顶
  * bitpush 表示将单字节（-128 ~ 127）的常量值推送至栈顶
  * sipush 表示将短整型（-32768 ~ 32767）的常量值推送至栈顶
- * iconst_1 表示将 int 类型 1 的常量值推送至栈顶（iconst_1 ~ iconst_5）
+ * iconst_1 表示将 int 类型 1 的常量值推送至栈顶（iconst_m1 ~ iconst_5）
  * getstatic [访问静态变量]
  * putstatic [赋值静态变量]
  * invokestatic [调用静态变量]
@@ -181,4 +181,31 @@ MyParent3 static block
 得出如下结论：  
 <font color="#FF0000">
 1.当一个常量的值并非编译期间可以确定的，那么其值就不会放到调用类的常量池中，这时在程序运行时，会导致主动使用这个常量所在的类，显然会导致这个类被初始化。
+</font>
+
+### 6.数组实例类型
+ ----------------------------------------
+
+下面的程序演示运行期常量：
+```java
+public class MyTest4 {
+    public static void main(String[] args) {
+        MyParent4[] myParent4s = new MyParent4[1];
+        System.out.println(myParent4s.getClass());
+    }
+}
+class MyParent4 {
+    static {
+        System.out.println("MyParent4 static block");
+    }
+}
+```
+
+程序输出：  
+class [Lcom.shengsiyuan.classloader.MyParent4;
+
+----------------------------------------
+得出如下结论：  
+<font color="#FF0000">
+1.对于数组实例来说，其类型是由 JVM 在运行期动态生成的，表示为 [Lcom.shengsiyuan.classloader.MyParent4 这种形式。
 </font>
