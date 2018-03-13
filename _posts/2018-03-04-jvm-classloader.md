@@ -98,7 +98,7 @@ welcome
 
 得出如下结论：  
 <font color="#FF0000">
-1.对于静态字段来说，只有直接使用该字段的类才会被初始化；  
+1.对于静态字段来说，只有直接使用该字段的类才会被初始化；<br/>
 2.当初始化一个类时，要求其父类全部都初始化完毕了；
 </font>
 
@@ -137,7 +137,7 @@ hello world
 
 得出如下结论：  
 <font color="#FF0000">
-1.常量在编译阶段会存入到调用该方法所在类的常量池中,本质上，调用类并没有直接引用到定义常量的类，因此并不会触发定义常量的类的初始化。  
+1.常量在编译阶段会存入到调用该方法所在类的常量池中,本质上，调用类并没有直接引用到定义常量的类，因此并不会触发定义常量的类的初始化。<br/>
 2.注意：这里指的是将常量存放在 MyTest2 的常量池中，之后 MyTest2 与 MyParent2 就没有任何关系了，甚至，我们可以将 MyParent2.class 文件删除。
 </font>
 
@@ -153,3 +153,32 @@ G:\mytools\IdeaProjects\jvm_study\out\production\classes>javap -c com.shengsiyua
  * getstatic [访问静态变量]
  * putstatic [赋值静态变量]
  * invokestatic [调用静态变量]
+
+ ### 5.运行期常量
+ ----------------------------------------
+
+下面的程序演示运行期常量：
+```java
+public class MyTest3 {
+    public static void main(String[] args) {
+        System.out.println(MyParent3.str);
+    }
+}
+
+class MyParent3 {
+    public static final String str = UUID.randomUUID().toString();
+    static {
+        System.out.println("MyParent3 static block");
+    }
+}
+```
+
+程序输出：  
+MyParent3 static block  
+81530983-df53-4922-a0c1-c1be640b39dd
+
+----------------------------------------
+得出如下结论：  
+<font color="#FF0000">
+1.当一个常量的值并非编译期间可以确定的，那么其值就不会放到调用类的常量池中，这时在程序运行时，会导致主动使用这个常量所在的类，显然会导致这个类被初始化。
+</font>
