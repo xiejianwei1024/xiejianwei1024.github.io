@@ -239,3 +239,11 @@ Video 24<br/>
 &emsp;&emsp;扩展类加载器和系统类加载器也是由启动类加载器所加载的。<br/>
 &emsp;&emsp;System.out.println(Launcher.class.getClassLoader()); //null<br/>
 &emsp;&emsp;分析：AppClassLoader 和 ExtClassLoader是Launcher的静态内部类，我们无法直接访问到；但是类加载器在加载类的时候有着这样的特性：类加载器加载Launcher的时候会加载里面的所有组件，当然也包括了AppClassLoader 和 ExtClassLoader。所有我们只要知道加载Launcher的是哪个类加载器，那么自然而然的，也就知道了加载AppClassLoader 和 ExtClassLoader是哪个类加载器。<br/>
+&emsp;&emsp;<br/>
+&emsp;&emsp;<br/>
+&emsp;&emsp;<br/>
+&emsp;&emsp;<br/>
+&emsp;&emsp;<br/>
+&emsp;&emsp;<br/>
+&emsp;&emsp;<br/>
+&emsp;&emsp;<br/>
