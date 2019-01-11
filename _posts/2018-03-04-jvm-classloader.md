@@ -241,9 +241,17 @@ Video 24<br/>
 &emsp;&emsp;分析：AppClassLoader 和 ExtClassLoader是Launcher的静态内部类，我们无法直接访问到；但是类加载器在加载类的时候有着这样的特性：类加载器加载Launcher的时候会加载里面的所有组件，当然也包括了AppClassLoader 和 ExtClassLoader。所有我们只要知道加载Launcher的是哪个类加载器，那么自然而然的，也就知道了加载AppClassLoader 和 ExtClassLoader是哪个类加载器。<br/>
 &emsp;&emsp;<br/>
 &emsp;&emsp;<br/>
+Video 25<br/>
+&emsp;&emsp;类加载器中一些重要的方法以及他们之间的一些联系。<br/>
+&emsp;&emsp;第一个方法：`getSystemClassLoader()`<br/>
+&emsp;&emsp;阅读javadoc：返回用于委托的系统类加载器。它是我们新创建的类加载器对象的默认委托双亲（也就是说调用这个静态方法所返回的ClassLoader实例是我们新建的自定义类加载器实例的委托双亲），通常地，它是用于启动应用的类加载器。<br/>
+&emsp;&emsp;这个方法在运行时启动序列首先调用，在这个时刻点，它会创建系统类加载器，并且将该系统类加载器设置为调用`getSystemClassLoader()`方法的那个线程的上下文类加载器。<br/>
+&emsp;&emsp;默认的系统类加载器时这个类的一个实现相关的实例。<br/>
+&emsp;&emsp;当这个方法第一次被调用的时候，如果定义了系统属性`java.system.class.loader`，那么系统属性的值将作为一个类的名字，被当作系统类加载器返回（换句话说，系统属性`java.system.class.loader`所对应的值会作为返回的系统类加载器的名字）。使用默认的系统类加载器（AppClassLoader）加载这个类(系统属性`java.system.class.loader`的值肯定是一个类)，并且（我们自定义的类加载器）必须定义一个`public`的构造方法，接收单个`ClassLoader`类型的参数，这个参数用作自定义类加载器的委托双亲。接下来使用这个构造方法就会创建一个自定义类加载器的实例，这个构造方法接收一个默认的系统类加载器作为参数。新生成的类加载器就被定义成系统类加载器。也就是说用我们自定义的类加载器替换掉jdk自带的系统类加载器（AppClassLoader），作为系统中默认的类加载器。<br/>
+&emsp;&emsp;openjdk.java.net<br/>
+&emsp;&emsp;grepcode.com:浏览源代码的网站，搜索sun.misc.Lacuncher，然后分析源代码。<br/>
+&emsp;&emsp;首先看构造方法：首先创造扩展类加载器，再进入扩展类加载器的源代码，创建扩展类加载器，读取特定目录下的class文件。<br/>
 &emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
+
+at which point
+在这个时刻点
