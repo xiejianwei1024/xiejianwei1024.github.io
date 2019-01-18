@@ -347,8 +347,10 @@ private static boolean isDriverAllowed(Driver driver, ClassLoader classLoader) {
 }
 ```
 &emsp;&emsp;分析：DriverManager中的这个方法特别重要，尤其是这一行`result = ( aClass == driver.getClass() ) ? true : false;` class对象比较的意义就涉及到命名空间的问题。参数 driver 之前被加载和接下来要使用的时候被加载器的类加载器应该是同一个。如果不是同一个类加载器加载的话，后面使用的时候一定会抛出ClassCastException。两个类即便名字是一摸一样的话，但是处于不同的命名空间中，相互是转化不了的。只有位于同一个命名空间下的class对象，它们之间才是可以相互转换的。因为之前的加载时 通过SPI（ServiceLoader）这样的机制进行的，对于开发者来说，可以轻松地通过Thread.currentThread.setContextClassLoader(cl)这样的方式将当前线程的上下文类加载器给改变了。改变了的话，就有可能会导致不是相同的类加载器进行加载的。<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
+Video 32 33 34 35 36<br/>
+&emsp;&emsp;类加载器总结：<br/>
+Video 37_Java字节码文件结构剖析<br/>
+&emsp;&emsp;为什么要学习Java字节码？java语言是跨平台的，JVM不是跨平台的。Java，Scala，Kotlin这些语言都是运行在JVM平台上，都是运行的编译好的字节码文件。<br/>
 &emsp;&emsp;<br/>
 &emsp;&emsp;<br/>
 &emsp;&emsp;<br/>
