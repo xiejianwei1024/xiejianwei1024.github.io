@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Java Design Patterns（creationalpattern）Builder
+title: Java Design Patterns|Builder
 ---
 # Builder
 
