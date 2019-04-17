@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Java并发|Thread于Runnable
+title: Java并发|Thread与Runnable
 ---
 [Lesson: Concurrency](https://docs.oracle.com/javase/tutorial/essential/concurrency/)
 
@@ -36,7 +36,8 @@ title: Java并发|Thread于Runnable
 ### 定义和启动线程
 &emsp;&emsp;创建线程实例的应用程序必须提供将在该线程中运行的代码。有两种方法可以做到这一点:<br/>
 
-*   提供一个`Runnable`对象。[Runnable](https://docs.oracle.com/javase/8/docs/api/java/lang/Runnable.html)接口定义了一个方法`run`，用于包含在线程中执行的代码。`Runnable`对象被传递给线程构造函数，`HelloRunnable`例子:
+*   提供一个`Runnable`对象。[Runnable](https://docs.oracle.com/javase/8/docs/api/java/lang/Runnable.html)接口定义了一个方法`run`，用于包含在线程中执行的代码。`Runnable`对象被传递给线程构造函数，`HelloRunnable`例子:<br/>
+
 ```java
 public class HelloRunnable implements Runnable {
 
@@ -50,7 +51,8 @@ public class HelloRunnable implements Runnable {
 
 }
 ```
-*   子类化`Thread`。`Thread`类本身实现`Runnable`，但是它的`run`方法什么也不做。应用程序可以子类化`Thread`，提供自己的`run`实现，如`HelloThread`示例:
+*   子类化`Thread`。`Thread`类本身实现`Runnable`，但是它的`run`方法什么也不做。应用程序可以子类化`Thread`，提供自己的`run`实现，如`HelloThread`示例:<br/>
+
 ```java
 public class HelloThread extends Thread {
 
