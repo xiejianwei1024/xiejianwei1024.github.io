@@ -14,11 +14,14 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
- * 一个容器对象，可能包含也可能不包含非空（non-null）值。如果值是存在的，那么isPresent()返回 true，并且get()返回这个值。
+ * 一个容器对象，可能包含也可能不包含非空（non-null）值。如果值是存在的，那么isPresent()返回 true，
+ * 并且get ()返回这个值。
  *
- * 还提供了其他方法,这些方法依赖于包含值的存在与否，比如orElse()(如果值不存在，则返回默认值)和ifPresent()(如果值存在，则执行代码块)。  
+ * 还提供了其他方法,这些方法依赖于包含值的存在与否，比如orElse()(如果值不存在，则返回默认值)
+ * 和ifPresent()(如果值存在，则执行代码块)。  
  *
- * 这是一个value-based class（基于值的类）；在Optional的实例上使用标识敏感操作(包括引用相等(==)、标识哈希码或同步)可能会产生不可预测的结果，应该避免。
+ * 这是一个value-based class（基于值的类）；在Optional的实例上使用标识敏感操作(包括引用相等(==)、
+ * 标识哈希码或同步)可能会产生不可预测的结果，应该避免。
  *
  * @since 1.8
  */
@@ -43,16 +46,13 @@ public final class Optional<T> {
     }
 
     /**
-     * Returns an empty {@code Optional} instance.  No value is present for this
-     * Optional.
+     * 返回一个空的Optional实例。 这个Optional没有值。
      *
-     * @apiNote Though it may be tempting to do so, avoid testing if an object
-     * is empty by comparing with {@code ==} against instances returned by
-     * {@code Option.empty()}. There is no guarantee that it is a singleton.
-     * Instead, use {@link #isPresent()}.
+     * @apiNote 虽然这样做很有诱惑力，但是用==比较Option.empty()返回的实例，来避免测试对象是否为空。
+     * 不能保证它是单例的。相反,使用isPresent ()。
      *
-     * @param <T> Type of the non-existent value
-     * @return an empty {@code Optional}
+     * @param <T> （non-existent）不存在的值的类型
+     * @return 一个空的 Optional
      */
     public static<T> Optional<T> empty() {
         @SuppressWarnings("unchecked")
@@ -64,43 +64,40 @@ public final class Optional<T> {
      * 构造一个有值的实例。
      *
      * @param value 非空（non-null）值
-     * @throws 如果 value 是 null，则抛出 NullPointerException 
+     * @throws NullPointerException 如果 value 是 null，则抛出 NullPointerException 
      */
     private Optional(T value) {
         this.value = Objects.requireNonNull(value);
     }
 
     /**
-     * Returns an {@code Optional} with the specified present non-null value.
+     * 返回一个Optional，它具有指定的非空（non-null）值。
      *
-     * @param <T> the class of the value
-     * @param value the value to be present, which must be non-null
-     * @return an {@code Optional} with the value present
-     * @throws NullPointerException if value is null
+     * @param <T> value的类型
+     * @param value value 是存在的, 必须是非空的（non-null）
+     * @return 一个有值的Optional
+     * @throws NullPointerException 如果 value 是null，则抛出NullPointerException
      */
     public static <T> Optional<T> of(T value) {
         return new Optional<>(value);
     }
 
-    /**
-     * Returns an {@code Optional} describing the specified value, if non-null,
-     * otherwise returns an empty {@code Optional}.
+     /**
+     * 如果给定的值是非空的（non-null），返回一个有值的Optional，否则返回一个空的Optional。
      *
-     * @param <T> the class of the value
-     * @param value the possibly-null value to describe
-     * @return an {@code Optional} with a present value if the specified value
-     * is non-null, otherwise an empty {@code Optional}
+     * @param <T>  value的类型
+     * @param value 可能为空的（possibly-null）值
+     * @return 如果给定的值是非空的（non-null），返回一个有值的Optional，否则返回一个空的Optional。
      */
     public static <T> Optional<T> ofNullable(T value) {
         return value == null ? empty() : of(value);
     }
 
-    /**
-     * If a value is present in this {@code Optional}, returns the value,
-     * otherwise throws {@code NoSuchElementException}.
+     /**
+     * 如果Optional中的值是存在的，返回这个值，否则抛出NoSuchElementException。
      *
-     * @return the non-null value held by this {@code Optional}
-     * @throws NoSuchElementException if there is no value present
+     * @return这个 Optional所持有的非空（non-null）值。
+     * @throws 如果没有值存在，则抛出NoSuchElementException
      *
      * @see Optional#isPresent()
      */
@@ -112,21 +109,19 @@ public final class Optional<T> {
     }
 
     /**
-     * Return {@code true} if there is a value present, otherwise {@code false}.
+     * 如果值是存在的，返回true，否则返回false。
      *
-     * @return {@code true} if there is a value present, otherwise {@code false}
+     * 如果值是存在的，返回true，否则返回false。
      */
     public boolean isPresent() {
         return value != null;
     }
 
     /**
-     * If a value is present, invoke the specified consumer with the value,
-     * otherwise do nothing.
+     * 如果值是存在的，那么对这个值调用指定的Consumer函数，否则什么也不做。
      *
-     * @param consumer block to be executed if a value is present
-     * @throws NullPointerException if value is present and {@code consumer} is
-     * null
+     * @param consumer如果值是存在的话，则执行 consumer块。
+     * @throws NullPointerException 如果值是存在的，并且consumer是null，则抛出NullPointerException。
      */
     public void ifPresent(Consumer<? super T> consumer) {
         if (value != null)
@@ -217,25 +212,21 @@ public final class Optional<T> {
     }
 
     /**
-     * Return the value if present, otherwise return {@code other}.
+     * 如果 value 值存在，那么返回 value，否则返回 ohter。
      *
-     * @param other the value to be returned if there is no value present, may
-     * be null
-     * @return the value, if present, otherwise {@code other}
+     * @param other 如果没有值（value）存在，这个other 被返回，它可能是 null。
+     * @return 如果 value 值存在，那么返回 value，否则返回 ohter。
      */
     public T orElse(T other) {
         return value != null ? value : other;
     }
 
     /**
-     * Return the value if present, otherwise invoke {@code other} and return
-     * the result of that invocation.
+     * 如果 value 值存在，那么返回 value，否则调用 other，返回调用结果。
      *
-     * @param other a {@code Supplier} whose result is returned if no value
-     * is present
-     * @return the value if present otherwise the result of {@code other.get()}
-     * @throws NullPointerException if value is not present and {@code other} is
-     * null
+     * @param other 如果没有值存在，Supplier函数的结果被返回
+     * @return 如果 value 值存在，那么返回 value，否则返回调用other.get()的结果。
+     * @throws NullPointerException 如果value不存在，并且 other 是 null。
      */
     public T orElseGet(Supplier<? extends T> other) {
         return value != null ? value : other.get();
