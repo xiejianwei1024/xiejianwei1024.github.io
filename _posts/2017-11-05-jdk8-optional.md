@@ -2,6 +2,7 @@
 layout: post
 title: jdk8-Optional
 ---
+## java.util.Optional 类 javadoc 解读
 
 ```java
 
@@ -322,17 +323,159 @@ public final class Optional<T> {
 }
 
 ```
+## 为何要引入 Optional？
+jdk8 引入 Optional 类的目的是为了解决NPE（NullPointerException）。<br/>
 
-jdk8 引入 Optional 类的目的是为了解决NPE（NullPointerException）。
+## 如何创建 Optional 实例？
+创建Optional实例不能直接new，因为其构造方法都是私有的；我们可以通过API提供的静态工厂方法：
+*   empty():Optional<T>
+*   of(T) :Optional<T>
+*   ofNullable(T) :Optional<T>
 
-如果我们定义了如下的方法，。
+我们需要知道这三个静态工厂方法的意义，在javadoc中有详细的描述，这里简单描述下：
+*   empty()：创建一个空的Optional对象，即Optional包装的value是null。
+*   of(T)：创建一个非空值的Optional对象，即Optional包装的value是non-null的，是存在的。
+*   ofNullable(T)：如果参数是null，那么创建一个空的Optional对象；如果参数是non-null的，那么创建一个非空值的Optional对象。
+
+如何使用它们呢？
+
+假如，我们从数据库中查找数据，这时的返回值有可能是空的，也有可能不是空的，那么我们应该使用第三个静态工厂方法：ofNullable(T)。<br/>
+如果，你确信，值是空的，那么使用empty()；<br/>
+如果，你确信，值是非空的，那么使用of(T)；<br/>
+
+## 具体示例
+### 示例1：OptionalTest
+第一个例子：OptionalTest.java，主要介绍了Optional中API简单使用。<br/>
 ```java
+import java.util.Optional;
+
+public class OptionalTest {
+    public static void main(String[] args) {
+//        Optional<String> optional = Optional.of("hello");
+        Optional<String> optional = Optional.empty();
+
+//        //面向对象的编程风格，不推荐使用
+//        if(optional.isPresent()) {
+//            System.out.println(optional.get());
+//        }
+        //推荐的Optional使用方式，函数式风格
+        optional.ifPresent(item -> System.out.println(item));
+        System.out.println("---");
+        System.out.println(optional.orElse("world"));
+        System.out.println("---");
+        System.out.println(optional.orElseGet(() -> "nihao"));
+    }
+}
+```
+
+### 示例2：OptionalTest2
+第二个例子：实际开发中经常使用。该实例是一对多的关系，一个公司有多个员工。
+Employee.java 和 Company.java 和 OptionalTest2.java
+
+Employee.java 如下：<br/>
+```java
+public class Employee {
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+```
+
+Company.java 如下：<br/>
+```java
+import java.util.List;
+
+public class Company {
+    private String name;
+
+    private List<Employee> employees;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<Employee> getEmployees() {
+        return employees;
+    }
+
+    public void setEmployees(List<Employee> employees) {
+        this.employees = employees;
+    }
+}
+```
+OptionalTest2.java 如下：<br/>
+```java
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+public class OptionalTest2 {
+    public static void main(String[] args) {
+        Employee employee1 = new Employee();
+        employee1.setName("zhangsan");
+        Employee employee2 = new Employee();
+        employee2.setName("lisi");
+
+        Company company = new Company();
+        company.setName("company1");
+
+        List<Employee> employees = Arrays.asList(employee1, employee2);
+        company.setEmployees(employees);
+
+        // 取出Company中的Employee列表，如果有，那么返回该Employee列表；
+        // 如果没有，那么返回一个空的Employee列表。
+        // 最佳实践
+        Optional<Company> optional = Optional.ofNullable(company);
+        List<Employee> result = optional.map(theCompany -> theCompany.getEmployees())
+                                        .orElse(Collections.emptyList());
+        result.forEach(employee -> System.out.println(employee.getName()));
+
+    }
+
+    // IDEA 警告
+    private Optional<Company> c;
+
+    // IDEA 警告
+    public void test(Optional optional) {}
+    
+}
+```
+## Optional 用作返回类型，否则 IDEA 警告
+如果在OptionalTest2.java中定义Optional类型的成员变量或者定义的方法参数类型是Optional的,如下：<br/>
+
+```java
+private Optional<Company> c;
+
 public void test(Optional optional) {}
 ```
+
 IDEA会给出警告：
-'Optional' used as type for parameter 'optional' less... (Ctrl+F1) 
+
+'Optional' used as type for parameter 'optional' less... (Ctrl+F1)
+
 Reports any uses of java.util.Optional<T>, java.util.OptionalDouble, java.util.OptionalInt, java.util.OptionalLong or com.google.common.base.Optional as the type for a field or a parameter. Optional was designed to provide a limited mechanism for library method return types where there needed to be a clear way to represent "no result". Using a field with type java.util.Optional is also problematic if the class needs to be Serializable, which java.util.Optional is not.
 
 大意：对成员变量或者方法参数使用这些类型做出了报告。这些类型包括java.util.Optional<T>, java.util.OptionalDouble, java.util.OptionalInt, java.util.OptionalLong or com.google.common.base.Optional。
 Optional的设计目的是为库方法返回类型提供一种有限的机制，在这种情况下需要一种明确的方法来表示“no result”。
 如果一个类需要被序列化，那么用java.util.Optional作为成员变量的类型也是有问题的，因为java.util.Optional没有被序列化。
+
+反观，String类，明确实现了java.io.Serializable接口：
+```java
+public final class String
+    implements java.io.Serializable, Comparable<String>, CharSequence {}
+```
+
+所以，Optional是用来解决空指针异常才被引入的，表示“no result”，常用作返回值类型。
+不应该将Optional声明为成员变量，不应该将Optional用作方法的参数。
+
