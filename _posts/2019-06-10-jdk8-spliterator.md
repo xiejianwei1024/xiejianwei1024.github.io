@@ -130,82 +130,53 @@ default Spliterator<E> spliterator() {
  * 最好在元素被tryAdvance()消费发生前切换，因为某些保证(比如estimateSize()的准确性，对分割迭代器SIZED的)
  * 仅仅在遍历开始之前是有效的。
  *
- * <p>Primitive subtype specializations of {@code Spliterator} are provided for
- * {@link OfInt int}, {@link OfLong long}, and {@link OfDouble double} values.
- * The subtype default implementations of
- * {@link Spliterator#tryAdvance(java.util.function.Consumer)}
- * and {@link Spliterator#forEachRemaining(java.util.function.Consumer)} box
- * primitive values to instances of their corresponding wrapper class.  Such
- * boxing may undermine any performance advantages gained by using the primitive
- * specializations.  To avoid boxing, the corresponding primitive-based methods
- * should be used.  For example,
- * {@link Spliterator.OfInt#tryAdvance(java.util.function.IntConsumer)}
- * and {@link Spliterator.OfInt#forEachRemaining(java.util.function.IntConsumer)}
- * should be used in preference to
- * {@link Spliterator.OfInt#tryAdvance(java.util.function.Consumer)} and
- * {@link Spliterator.OfInt#forEachRemaining(java.util.function.Consumer)}.
- * Traversal of primitive values using boxing-based methods
- * {@link #tryAdvance tryAdvance()} and
- * {@link #forEachRemaining(java.util.function.Consumer) forEachRemaining()}
- * does not affect the order in which the values, transformed to boxed values,
- * are encountered.
+ * 37_分割迭代器与ForkJoin详解
+ *
+ * Spliterator的原生子类型特化提供了(OfInt)int, (OfLong)long, (OfDouble)double 值.
+ * tryAdvance(Consumer)和forEachRemaining(Consumer)这两个方法子类型的默认实现
+ * 将原生值包装成包装对象。这种装箱可能会破坏使用原始专门化所获得的性能优势。
+ * 为了避免装箱，应该使用相应的基于原生方法。例如，应该优先使用Spliterator.OfInt.tryAdvance(IntConsumer)
+ * 和 Spliterator.OfInt.forEachRemaining(IntConsumer)，而不是 Spliterator.OfInt.tryAdvance(Consumer)
+ * 和Spliterator.OfInt.forEachRemaining(Consumer)。使用基于装箱的方法 tryAdvance() and forEachRemaining()
+ * 遍历原生值不会影响装修后值的顺序。
  *
  * @apiNote
- * <p>Spliterators, like {@code Iterator}s, are for traversing the elements of
- * a source.  The {@code Spliterator} API was designed to support efficient
- * parallel traversal in addition to sequential traversal, by supporting
- * decomposition as well as single-element iteration.  In addition, the
- * protocol for accessing elements via a Spliterator is designed to impose
- * smaller per-element overhead than {@code Iterator}, and to avoid the inherent
- * race involved in having separate methods for {@code hasNext()} and
- * {@code next()}.
+ * Spliterators和Iterators类型，用于遍历源中的元素。Spliterator的API被设计成
+ * 支持串行遍历之外，还支持高效并行遍历，通过分解和单元素迭代。
+ * 此外，通过Spliterator访问元素的协议被设计成对每个元素施加比Iterator更小的开销，
+ * 并且避免了为hasNext()和next()使用单独的方法所涉及的固有竞争。
  *
- * <p>For mutable sources, arbitrary and non-deterministic behavior may occur if
- * the source is structurally interfered with (elements added, replaced, or
- * removed) between the time that the Spliterator binds to its data source and
- * the end of traversal.  For example, such interference will produce arbitrary,
- * non-deterministic results when using the {@code java.util.stream} framework.
+ * 对于可变的源，如果在Spliterator绑定数据源和遍历结束期间，源被修改（元素添加，替换或者删除）的话，
+ * 任意和不确定的行为可能会发生。例如，当使用流框架的时候，这样的修改将会产生任意和不确定的结果。
  *
- * <p>Structural interference of a source can be managed in the following ways
- * (in approximate order of decreasing desirability):
- * <ul>
- * <li>The source cannot be structurally interfered with.
- * <br>For example, an instance of
- * {@link java.util.concurrent.CopyOnWriteArrayList} is an immutable source.
- * A Spliterator created from the source reports a characteristic of
- * {@code IMMUTABLE}.</li>
- * <li>The source manages concurrent modifications.
- * <br>For example, a key set of a {@link java.util.concurrent.ConcurrentHashMap}
- * is a concurrent source.  A Spliterator created from the source reports a
- * characteristic of {@code CONCURRENT}.</li>
- * <li>The mutable source provides a late-binding and fail-fast Spliterator.
- * <br>Late binding narrows the window during which interference can affect
- * the calculation; fail-fast detects, on a best-effort basis, that structural
- * interference has occurred after traversal has commenced and throws
- * {@link ConcurrentModificationException}.  For example, {@link ArrayList},
- * and many other non-concurrent {@code Collection} classes in the JDK, provide
- * a late-binding, fail-fast spliterator.</li>
- * <li>The mutable source provides a non-late-binding but fail-fast Spliterator.
- * <br>The source increases the likelihood of throwing
- * {@code ConcurrentModificationException} since the window of potential
- * interference is larger.</li>
- * <li>The mutable source provides a late-binding and non-fail-fast Spliterator.
- * <br>The source risks arbitrary, non-deterministic behavior after traversal
- * has commenced since interference is not detected.
- * </li>
- * <li>The mutable source provides a non-late-binding and non-fail-fast
- * Spliterator.
- * <br>The source increases the risk of arbitrary, non-deterministic behavior
- * since non-detected interference may occur after construction.
- * </li>
- * </ul>
+ * 源的结构修改可按以下方法处理(大致按可取性下降的次序):
+ * 
+ * 源不能从结构上进行修改。
+ * 例如，java.util.concurrent.CopyOnWriteArrayList的实例是一个不可变的源。
+ * 从源创建的Spliterator报告IMMUTABLE的特性。
  *
- * <p><b>Example.</b> Here is a class (not a very useful one, except
- * for illustration) that maintains an array in which the actual data
- * are held in even locations, and unrelated tag data are held in odd
- * locations. Its Spliterator ignores the tags.
+ * 源管理并发修改。
+ * 例如，java.util.concurrent.ConcurrentHashMap的key的set就是一个并发源。
+ * 从源创建的Spliterator报告CONCURRENT的特性。
+ * 
+ * 可变的源提供了延迟绑定和快速失败的Spliterator。
+ * 延迟绑定会缩小修改影响计算的窗口；快速失败在尽最大努力的基础上检测遍历开始后发生的结构修改，
+ * 并抛出ConcurrentModificationException。例如，ArrayList和JDK中其他非并发的Collection，
+ * 提供了延迟绑定，快速失败的spliterator。
  *
- * <pre> {@code
+ * 可变的源提供了非延迟绑定，但是快速失败的Spliterator。
+ * 由于潜在干扰的窗口较大，因此源增加了抛出ConcurrentModificationException的可能性。
+ * 
+ * 可变的源提供了延迟绑定，但是非快速失败的Spliterator。
+ * 由于没有检测到修改，遍历后的源风险是任意的、不确定的行为。
+ *
+ * 可变的源提供了非延迟绑定，并且非快速失败的Spliterator。
+ * 由于在构建之后可能会发生未检测到的修改，因此源增加了任意、不确定行为的风险。
+ *
+ * 例子。这里有一个类(除了数码之外，不是很有用)，它维护一个数组，其中实际数据保存在偶数位置，
+ * 而不相关的标记数据保存在奇数位置。它的Spliterator忽略标记。
+ *
+ *
  * class TaggedArray<T> {
  *   private final Object[] elements; // immutable after construction
  *   TaggedArray(T[] data, Object[] tags) {
@@ -239,7 +210,7 @@ default Spliterator<E> spliterator() {
  *     public boolean tryAdvance(Consumer<? super T> action) {
  *       if (origin < fence) {
  *         action.accept((T) array[origin]);
- *         origin += 2;
+ *         origin += 2; //真实数据在偶数位
  *         return true;
  *       }
  *       else // cannot advance
@@ -265,20 +236,15 @@ default Spliterator<E> spliterator() {
  *       return ORDERED | SIZED | IMMUTABLE | SUBSIZED;
  *     }
  *   }
- * }}</pre>
+ * }
  *
- * <p>As an example how a parallel computation framework, such as the
- * {@code java.util.stream} package, would use Spliterator in a parallel
- * computation, here is one way to implement an associated parallel forEach,
- * that illustrates the primary usage idiom of splitting off subtasks until
- * the estimated amount of work is small enough to perform
- * sequentially. Here we assume that the order of processing across
- * subtasks doesn't matter; different (forked) tasks may further split
- * and process elements concurrently in undetermined order.  This
- * example uses a {@link java.util.concurrent.CountedCompleter};
- * similar usages apply to other parallel task constructions.
+ * 例如一个并行计算框架，如java.util.stream包，将在并行计算中使用Spliterator，
+ * 这里有一种实现相关并行forEach的方法，它演示了子任务分割的主要用法，
+ * 直到估计的工作量足够小，可以按顺序执行为止。这里我们假设处理子任务的顺序无关紧要;
+ * 不同的(分叉的)任务可以进一步拆分，并按未确定的顺序并发处理元素。
+ * 本例使用java.util.concurrent.CountedCompleter;类似的用法也适用于其他并行任务结构。
  *
- * <pre>{@code
+ *
  * static <T> void parEach(TaggedArray<T> a, Consumer<T> action) {
  *   Spliterator<T> s = a.spliterator();
  *   long targetBatchSize = s.estimateSize() / (ForkJoinPool.getCommonPoolParallelism() * 8);
@@ -310,150 +276,111 @@ default Spliterator<E> spliterator() {
  * }}</pre>
  *
  * @implNote
- * If the boolean system property {@code org.openjdk.java.util.stream.tripwire}
- * is set to {@code true} then diagnostic warnings are reported if boxing of
- * primitive values occur when operating on primitive subtype specializations.
+ * 如果布尔系统属性org.openjdk.java.util.stream.tripwireve被设置成true，
+ * 当对原生子类型特化操作时，如果发生原生值装箱，然后会报告诊断警告。
  *
- * @param <T> the type of elements returned by this Spliterator
+ * @param <T> 当前的Spliterator返回的元素类型。
  *
  * @see Collection
  * @since 1.8
  */
 public interface Spliterator<T> {
     /**
-     * If a remaining element exists, performs the given action on it,
-     * returning {@code true}; else returns {@code false}.  If this
-     * Spliterator is {@link #ORDERED} the action is performed on the
-     * next element in encounter order.  Exceptions thrown by the
-     * action are relayed to the caller.
+     * 如果存在剩余的元素，那么对该元素执行给定的动作，返回true；否则返回false。
+     * 如果当前的Spliterator是ORDERED有序的，那么将按相遇顺序对下一个元素执行操作。
+     * 该动作引发的异常将传递给调用者。
      *
-     * @param action The action
-     * @return {@code false} if no remaining elements existed
-     * upon entry to this method, else {@code true}.
-     * @throws NullPointerException if the specified action is null
+     * @param action 给定的动作
+     * @return 如果在进入此方法时不存在其他元素，则为false，否则为true。
+     * @throws NullPointerException 如果指定的action是null
      */
     boolean tryAdvance(Consumer<? super T> action);
 
     /**
-     * Performs the given action for each remaining element, sequentially in
-     * the current thread, until all elements have been processed or the action
-     * throws an exception.  If this Spliterator is {@link #ORDERED}, actions
-     * are performed in encounter order.  Exceptions thrown by the action
-     * are relayed to the caller.
+     * 在当前线程中对剩余的元素执行给定的动作，以串行方式执行，知道所有的元素都被处理
+     * 或者action动作抛出了异常。如果当前的Spliterator是ORDERED有序的，动作就会按照
+     * 相遇的顺序处理。该动作引发的异常将传递给调用者。
      *
      * @implSpec
-     * The default implementation repeatedly invokes {@link #tryAdvance} until
-     * it returns {@code false}.  It should be overridden whenever possible.
+     * 默认实现反复调用tryAdvance，直到返回false。只要可能，就应该重写它。
      *
-     * @param action The action
-     * @throws NullPointerException if the specified action is null
+     * @param action 动作
+     * @throws NullPointerException 如果指定的action是null
      */
     default void forEachRemaining(Consumer<? super T> action) {
         do { } while (tryAdvance(action));
     }
 
     /**
-     * If this spliterator can be partitioned, returns a Spliterator
-     * covering elements, that will, upon return from this method, not
-     * be covered by this Spliterator.
+     * 如果当前的spliterator可以被分割，那么就会返回一个spliterator，它涵盖的元素If this spliterator can be partitioned, returns a Spliterator
+     * 是从当前方法返回的，并且不会被当前的Spliterator覆盖掉。
      *
-     * <p>If this Spliterator is {@link #ORDERED}, the returned Spliterator
-     * must cover a strict prefix of the elements.
+     * 如果当前的Spliterator是ORDERED有序的，那么返回的Spliterator必须涵盖元素的严格前缀。
+     * (返回的Spliterator必须也是ORDERED的)
      *
-     * <p>Unless this Spliterator covers an infinite number of elements,
-     * repeated calls to {@code trySplit()} must eventually return {@code null}.
-     * Upon non-null return:
-     * <ul>
-     * <li>the value reported for {@code estimateSize()} before splitting,
-     * must, after splitting, be greater than or equal to {@code estimateSize()}
-     * for this and the returned Spliterator; and</li>
-     * <li>if this Spliterator is {@code SUBSIZED}, then {@code estimateSize()}
-     * for this spliterator before splitting must be equal to the sum of
-     * {@code estimateSize()} for this and the returned Spliterator after
-     * splitting.</li>
-     * </ul>
+     * 除非当前的Spliterator包含无穷多个元素，否则对trySplit()的重复调用最终必须返回null。
+     * 非空返回：
      *
-     * <p>This method may return {@code null} for any reason,
-     * including emptiness, inability to split after traversal has
-     * commenced, data structure constraints, and efficiency
-     * considerations.
+     * 分割之前estimateSize()报告的值必须大于等于分割之后estimateSize()报告的值,
+     * 对于当前的Spliterator和返回的Spliterator。
+     * 
+     * 如果当前的Spliterator是SUBSIZED的，那么当前Spliterator的estimateSize()值在分割之前
+     * 必须等于分割之后当前的加上返回的estimateSize()值总和。
+     *
+     * 当前的方法可能会因为任何原因返回null，包括空、遍历开始后无法分割、数据结构约束和效率考虑。
      *
      * @apiNote
-     * An ideal {@code trySplit} method efficiently (without
-     * traversal) divides its elements exactly in half, allowing
-     * balanced parallel computation.  Many departures from this ideal
-     * remain highly effective; for example, only approximately
-     * splitting an approximately balanced tree, or for a tree in
-     * which leaf nodes may contain either one or two elements,
-     * failing to further split these nodes.  However, large
-     * deviations in balance and/or overly inefficient {@code
-     * trySplit} mechanics typically result in poor parallel
-     * performance.
+     * 一个理想的trySplit方法有效地(不需要遍历)将其元素精确地分成两半，允许平衡的并行计算。
+     * 许多偏离这一理想的做法仍然非常有效；例如，只近似地拆分一个近似平衡的树，
+     * 或者对于叶子节点可能包含一个或两个元素的树，不能进一步拆分这些节点。
+     * 然而，平衡上的较大偏差and/or效率过低的trySplit机制通常会导致较差的并行性能。
      *
-     * @return a {@code Spliterator} covering some portion of the
-     * elements, or {@code null} if this spliterator cannot be split
+     * @return 一个Spliterator，它涵盖了部分元素；或者返回null，如果当前的spliterator不能再分割。
      */
     Spliterator<T> trySplit();
 
     /**
-     * Returns an estimate of the number of elements that would be
-     * encountered by a {@link #forEachRemaining} traversal, or returns {@link
-     * Long#MAX_VALUE} if infinite, unknown, or too expensive to compute.
+     * 返回元素数量的估计值，是剩余遍历将遇到的元素。或者返回Long.MAX_VALUE,
+     * (如果为无穷大、未知或计算成本太高)。
      *
-     * <p>If this Spliterator is {@link #SIZED} and has not yet been partially
-     * traversed or split, or this Spliterator is {@link #SUBSIZED} and has
-     * not yet been partially traversed, this estimate must be an accurate
-     * count of elements that would be encountered by a complete traversal.
-     * Otherwise, this estimate may be arbitrarily inaccurate, but must decrease
-     * as specified across invocations of {@link #trySplit}.
+     * 如果当前的Spliterator是SIZED的，并且没有被部分地遍历或分割，
+     * 或者当前的Spliterator是SUBSIZED的，并且没有被部分地遍历，
+     * 那么当前的估算值必须是元素的准确个数，元素是完整遍历所遇到的。
+     * 否则，当前的估算值可能是任意的不准确的，但是必须但是必须随着trySplit调用的不同而减少。
      *
      * @apiNote
-     * Even an inexact estimate is often useful and inexpensive to compute.
-     * For example, a sub-spliterator of an approximately balanced binary tree
-     * may return a value that estimates the number of elements to be half of
-     * that of its parent; if the root Spliterator does not maintain an
-     * accurate count, it could estimate size to be the power of two
-     * corresponding to its maximum depth.
+     * 即使是不精确的估计也常常是有用的，而且计算起来也很便宜。例如，
+     * 例如，一个近似平衡的二叉树的子spliterator可能返回一个值，该值估计元素的数量是其父树的一半；
+     * 如果根Spliterator没有维护精确的计数，它可以估计大小为与其最大深度对应的2的幂。
      *
-     * @return the estimated size, or {@code Long.MAX_VALUE} if infinite,
-     *         unknown, or too expensive to compute.
+     * @return 估算的值；或者Long.MAX_VALUE，如果为无穷大、未知或计算成本太高。
      */
     long estimateSize();
 
     /**
-     * Convenience method that returns {@link #estimateSize()} if this
-     * Spliterator is {@link #SIZED}, else {@code -1}.
+     * 便利的方法，它返回estimateSize()，如果当前的Spliterator是SIZED的，否则返回-1。
      * @implSpec
-     * The default implementation returns the result of {@code estimateSize()}
-     * if the Spliterator reports a characteristic of {@code SIZED}, and
-     * {@code -1} otherwise.
+     * 默认实现返回estimateSize()的结果，如果Spliterator报告了SIZE特征值，否则返回-1。
      *
-     * @return the exact size, if known, else {@code -1}.
+     * @return 如果知道，返回确定的size，否则返回-1。
      */
     default long getExactSizeIfKnown() {
         return (characteristics() & SIZED) == 0 ? -1L : estimateSize();
     }
 
     /**
-     * Returns a set of characteristics of this Spliterator and its
-     * elements. The result is represented as ORed values from {@link
-     * #ORDERED}, {@link #DISTINCT}, {@link #SORTED}, {@link #SIZED},
-     * {@link #NONNULL}, {@link #IMMUTABLE}, {@link #CONCURRENT},
-     * {@link #SUBSIZED}.  Repeated calls to {@code characteristics()} on
-     * a given spliterator, prior to or in-between calls to {@code trySplit},
-     * should always return the same result.
+     * 返回当前Spliterator及其元素的特征的集合set。结果被表示为ORed，值来自于
+     * ORDERED, DISTINCT, SORTED, SIZED, NONNULL, IMMUTABLE, CONCURRENT,SUBSIZED。
+     * 在给定的Spliterator上重复调用characteristics()的话，在调用trySplit之前或之间，
+     * 应该总是返回相同的结果。
      *
-     * <p>If a Spliterator reports an inconsistent set of
-     * characteristics (either those returned from a single invocation
-     * or across multiple invocations), no guarantees can be made
-     * about any computation using this Spliterator.
+     * 如果Spliterator报告了一组不一致的特征（从单个调用或跨多个调用返回的特征），
+     * 则不能保证使用当前Spliterator进行任何计算。
      *
-     * @apiNote The characteristics of a given spliterator before splitting
-     * may differ from the characteristics after splitting.  For specific
-     * examples see the characteristic values {@link #SIZED}, {@link #SUBSIZED}
-     * and {@link #CONCURRENT}.
+     * @apiNote 在分割之前，对于一个给定的spliterator的特征值可能和分割之后是不同的。
+     * 具体示例，请参见特征值：SIZED，SUBSIZED，CONCURRENT。
      *
-     * @return a representation of characteristics
+     * @return 特征的表示
      */
     int characteristics();
 
