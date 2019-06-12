@@ -312,7 +312,7 @@ public interface Spliterator<T> {
     }
 
     /**
-     * 如果当前的spliterator可以被分割，那么就会返回一个spliterator，它涵盖的元素If this spliterator can be partitioned, returns a Spliterator
+     * 如果当前的spliterator可以被分割，那么就会返回一个spliterator，它涵盖的元素
      * 是从当前方法返回的，并且不会被当前的Spliterator覆盖掉。
      *
      * 如果当前的Spliterator是ORDERED有序的，那么返回的Spliterator必须涵盖元素的严格前缀。
@@ -385,164 +385,119 @@ public interface Spliterator<T> {
     int characteristics();
 
     /**
-     * Returns {@code true} if this Spliterator's {@link
-     * #characteristics} contain all of the given characteristics.
+     * 如果当前的Spliterator的characteristics()包含所有给定的characteristics，就返回true。
      *
      * @implSpec
-     * The default implementation returns true if the corresponding bits
-     * of the given characteristics are set.
+     * 默认实现返回true，如果设置了给定characteristics的对应位。
      *
-     * @param characteristics the characteristics to check for
-     * @return {@code true} if all the specified characteristics are present,
-     * else {@code false}
+     * @param characteristics 要检查的characteristics
+     * @return 如果所有指定的characteristics都存在的话，就返回true，否则返回false。
      */
     default boolean hasCharacteristics(int characteristics) {
         return (characteristics() & characteristics) == characteristics;
     }
 
     /**
-     * If this Spliterator's source is {@link #SORTED} by a {@link Comparator},
-     * returns that {@code Comparator}. If the source is {@code SORTED} in
-     * {@linkplain Comparable natural order}, returns {@code null}.  Otherwise,
-     * if the source is not {@code SORTED}, throws {@link IllegalStateException}.
+     * 如果当前的源通过一个Comparator进行比较后是SORTED的，那么返回这个Comparator。
+     * 如果源按自然顺序排序，则返回null。否则，如果源是SORTED的，则抛出IllegalStateException。
      *
      * @implSpec
-     * The default implementation always throws {@link IllegalStateException}.
+     * 默认实现总是抛出IllegalStateException。
      *
-     * @return a Comparator, or {@code null} if the elements are sorted in the
-     * natural order.
-     * @throws IllegalStateException if the spliterator does not report
-     *         a characteristic of {@code SORTED}.
+     * @return 一个 Comparator,或者 null 如果元素是按照自然顺序排序的话。
+     * @throws IllegalStateException 如果 spliterator 没有报告SORTED特征值。
      */
     default Comparator<? super T> getComparator() {
         throw new IllegalStateException();
     }
 
     /**
-     * Characteristic value signifying that an encounter order is defined for
-     * elements. If so, this Spliterator guarantees that method
-     * {@link #trySplit} splits a strict prefix of elements, that method
-     * {@link #tryAdvance} steps by one element in prefix order, and that
-     * {@link #forEachRemaining} performs actions in encounter order.
+     * 特征值，表示元素出现顺序已经定义好了。如果是这样的话，当前的Spliterator保证
+     * trySplit方法按照严格的顺序分割元素，保证tryAdvance方法按照严格的顺序步进一个元素，
+     * 保证forEachRemaining方法按照出现顺序执行给定的动作。
      *
-     * <p>A {@link Collection} has an encounter order if the corresponding
-     * {@link Collection#iterator} documents an order. If so, the encounter
-     * order is the same as the documented order. Otherwise, a collection does
-     * not have an encounter order.
+     * 一个 Collection 有顺序的，如果相应的Collection.iterator记录了顺序的话。
+     * 如果是这样的话，出现的顺序和记录的顺序是一样的。否则，集合没有顺序。
      *
-     * @apiNote Encounter order is guaranteed to be ascending index order for
-     * any {@link List}. But no order is guaranteed for hash-based collections
-     * such as {@link HashSet}. Clients of a Spliterator that reports
-     * {@code ORDERED} are expected to preserve ordering constraints in
-     * non-commutative parallel computations.
+     * @apiNote 对于任何List来说，出现的顺序保证了升序索引顺序。
+     * 但是对于基于哈希的集合，比如HashSet来说，不保证顺序的。
+     * 在非交换并行计算中，报告ORDERED的Spliterator的客户端应该保留有序约束。
      */
     public static final int ORDERED    = 0x00000010;
 
     /**
-     * Characteristic value signifying that, for each pair of
-     * encountered elements {@code x, y}, {@code !x.equals(y)}. This
-     * applies for example, to a Spliterator based on a {@link Set}.
+     * 特征值表示，对于每一对遇到的元素x,y，!x.equals(y)。
+     * 例如，这适用于基于Set的Spliterator。
      */
     public static final int DISTINCT   = 0x00000001;
 
     /**
-     * Characteristic value signifying that encounter order follows a defined
-     * sort order. If so, method {@link #getComparator()} returns the associated
-     * Comparator, or {@code null} if all elements are {@link Comparable} and
-     * are sorted by their natural ordering.
+     * 特征值表示，出现顺序遵循已经定义好的排序顺序。
+     * 如果是这样的话，getComparator()方法返回相关联的Comparator，
+     * 或者返回null，如果所有元素是Comparable的，并且按照自然顺序排好序的话。
      *
-     * <p>A Spliterator that reports {@code SORTED} must also report
-     * {@code ORDERED}.
+     * Spliterator报告了SORTED的话，也必须报告ORDERED。
      *
-     * @apiNote The spliterators for {@code Collection} classes in the JDK that
-     * implement {@link NavigableSet} or {@link SortedSet} report {@code SORTED}.
+     * @apiNote JDK中的Collection类NavigableSet或者SortedSet实现的spliterator都报告了SORTED。
      */
     public static final int SORTED     = 0x00000004;
 
     /**
-     * Characteristic value signifying that the value returned from
-     * {@code estimateSize()} prior to traversal or splitting represents a
-     * finite size that, in the absence of structural source modification,
-     * represents an exact count of the number of elements that would be
-     * encountered by a complete traversal.
+     * 特征值表示，在遍历或分割之前由estimateSize()返回的值，是有限的大小，
+     * 在没有结构源修改的情况下，表示完整遍历将遇到的元素数量的精确计数。
      *
-     * @apiNote Most Spliterators for Collections, that cover all elements of a
-     * {@code Collection} report this characteristic. Sub-spliterators, such as
-     * those for {@link HashSet}, that cover a sub-set of elements and
-     * approximate their reported size do not.
+     * @apiNote 集合中大多数Spliterators，它覆盖了Collection的所有元素，都会报告当前的特征值SIZED。
+     * Sub-spliterators,比如HashSet的子分割迭代器，它覆盖了元素的sub-set 并且粗略报告大小，就不会有SIZED。
      */
     public static final int SIZED      = 0x00000040;
 
     /**
-     * Characteristic value signifying that the source guarantees that
-     * encountered elements will not be {@code null}. (This applies,
-     * for example, to most concurrent collections, queues, and maps.)
+     * 特征值表示，当前的源保证遇到的元素不会是null。(这适用于大多数的并发集合，队列，map)
      */
     public static final int NONNULL    = 0x00000100;
 
     /**
-     * Characteristic value signifying that the element source cannot be
-     * structurally modified; that is, elements cannot be added, replaced, or
-     * removed, so such changes cannot occur during traversal. A Spliterator
-     * that does not report {@code IMMUTABLE} or {@code CONCURRENT} is expected
-     * to have a documented policy (for example throwing
-     * {@link ConcurrentModificationException}) concerning structural
-     * interference detected during traversal.
+     * 特征值表示，元素源在结构上不能被修改，意思是，元素不能被添加，替换，或删除，
+     * 这些变化不能出现在遍历期间。Spliterator没有报告IMMUTABLE或CONCURRENT的话，就是希望
+     * 有一个文档化策略（例如抛出ConcurrentModificationException）用于说明遍历过程中对结构修改的检测。
      */
     public static final int IMMUTABLE  = 0x00000400;
 
     /**
-     * Characteristic value signifying that the element source may be safely
-     * concurrently modified (allowing additions, replacements, and/or removals)
-     * by multiple threads without external synchronization. If so, the
-     * Spliterator is expected to have a documented policy concerning the impact
-     * of modifications during traversal.
+     * 特征值表示，元素源可以由多个线程安全地并发修改（允许添加，替换，删除），而不需要外部同步。
+     * 如果是这样的话，这个Spliteraor希望有文档化的策略，用于说明遍历过程中修改的影响。
      *
-     * <p>A top-level Spliterator should not report both {@code CONCURRENT} and
-     * {@code SIZED}, since the finite size, if known, may change if the source
-     * is concurrently modified during traversal. Such a Spliterator is
-     * inconsistent and no guarantees can be made about any computation using
-     * that Spliterator. Sub-spliterators may report {@code SIZED} if the
-     * sub-split size is known and additions or removals to the source are not
-     * reflected when traversing.
+     * 顶层的Spliterator不应该同时报告CONCURRENT和SIZED，因为有限的size，如果知道的话，可能会
+     * 改变，如果源在遍历期间被并发修改。这样的Spliterator是不一致的，并且做任何计算也是没有保证的。
+     * Sub-spliterators可能报告SIZED，如果sub-split 的size 已知的话，
+     * 并且在遍历的时候，对源的添加或者删除没有反映出来。
      *
-     * @apiNote Most concurrent collections maintain a consistency policy
-     * guaranteeing accuracy with respect to elements present at the point of
-     * Spliterator construction, but possibly not reflecting subsequent
-     * additions or removals.
+     * @apiNote 大多数并发集合都会维护一个以执行策略，来保证在Spliterator构造时元素的准确性，
+     * 但是可能不会反映对子的源的添加或者删除。
      */
     public static final int CONCURRENT = 0x00001000;
 
     /**
-     * Characteristic value signifying that all Spliterators resulting from
-     * {@code trySplit()} will be both {@link #SIZED} and {@link #SUBSIZED}.
-     * (This means that all child Spliterators, whether direct or indirect, will
-     * be {@code SIZED}.)
+     * 特征值表示，从trySplit()返回的所有Spliterator都应该是SIZED和SUBSIZED的。
+     * (这意味着所有的子Spliterator，无论是直接还是间接的子Spliterator，都是SIZED。)
      *
-     * <p>A Spliterator that does not report {@code SIZED} as required by
-     * {@code SUBSIZED} is inconsistent and no guarantees can be made about any
-     * computation using that Spliterator.
+     * 如果一个Spliterator没有按照SUBSIZED的要求报告SIZED，那么它就是不一致的，
+     * 并且不能保证使用该Spliterator进行任何计算。
      *
-     * @apiNote Some spliterators, such as the top-level spliterator for an
-     * approximately balanced binary tree, will report {@code SIZED} but not
-     * {@code SUBSIZED}, since it is common to know the size of the entire tree
-     * but not the exact sizes of subtrees.
+     * @apiNote 一些Spliterator，比如顶层的spliterator，它是几乎平和的二叉树的，将会报告SIZED，但是不会报告SUBSIZED，
+     * 因为通常知道整棵树的size，但是不确定子树的size。
      */
     public static final int SUBSIZED = 0x00004000;
 
     /**
-     * A Spliterator specialized for primitive values.
+     * 一个专门用于原生值的Spliterator。
      *
-     * @param <T> the type of elements returned by this Spliterator.  The
-     * type must be a wrapper type for a primitive type, such as {@code Integer}
-     * for the primitive {@code int} type.
-     * @param <T_CONS> the type of primitive consumer.  The type must be a
-     * primitive specialization of {@link java.util.function.Consumer} for
-     * {@code T}, such as {@link java.util.function.IntConsumer} for
-     * {@code Integer}.
-     * @param <T_SPLITR> the type of primitive Spliterator.  The type must be
-     * a primitive specialization of Spliterator for {@code T}, such as
-     * {@link Spliterator.OfInt} for {@code Integer}.
+     * @param <T> 由当前的Spliterator所返回的元素类型。T必须是原生类型的包装类型，比如
+     * 针对原生int类型对应的包装类型Integer。
+     * @param <T_CONS> 原生comsumer的类型。 T_CONS必须是java.util.function.Consumer对T
+     * 的原始特化，比如针对Integer的java.util.function.IntConsumer。
+     * @param <T_SPLITR> 原生Spliterator的类型。T_SPLITR必须是Spliterator对T的原始特化，
+     * 比如，针对Integer的Spliterator.OfInt。
      *
      * @see Spliterator.OfInt
      * @see Spliterator.OfLong
@@ -555,34 +510,27 @@ public interface Spliterator<T> {
         T_SPLITR trySplit();
 
         /**
-         * If a remaining element exists, performs the given action on it,
-         * returning {@code true}; else returns {@code false}.  If this
-         * Spliterator is {@link #ORDERED} the action is performed on the
-         * next element in encounter order.  Exceptions thrown by the
-         * action are relayed to the caller.
+         * 如果剩余的元素存在，那么对其执行给定的动作，返回true，否则返回false。
+         * 如果当前的Spliterator是ORDERED的，那么动作会在遇到顺序的下一个元素上被执行。
+         * 该动作引发的异常会传递给调用者。
          *
-         * @param action The action
-         * @return {@code false} if no remaining elements existed
-         * upon entry to this method, else {@code true}.
-         * @throws NullPointerException if the specified action is null
+         * @param action 动作
+         * @return 如果在进入此方法时不存在其他元素，则为false，否则为true。
+         * @throws NullPointerException 如果指定的动作是null
          */
         @SuppressWarnings("overloads")
         boolean tryAdvance(T_CONS action);
 
         /**
-         * Performs the given action for each remaining element, sequentially in
-         * the current thread, until all elements have been processed or the
-         * action throws an exception.  If this Spliterator is {@link #ORDERED},
-         * actions are performed in encounter order.  Exceptions thrown by the
-         * action are relayed to the caller.
+         * 在当前的线程中按照顺序对每一个剩余的元素都执行给定的动作，知道所有元素被处理完或者
+         * 动作抛出了异常。如果当前的Spliterator是ORDERED，那么动作会按照遇到的顺序执行。
+         * 由该动作引发的异常会传递给调用者。
          *
          * @implSpec
-         * The default implementation repeatedly invokes {@link #tryAdvance}
-         * until it returns {@code false}.  It should be overridden whenever
-         * possible.
+         * 默认实现重复调用tryAdvanc，知道tryAdvanc返回false。无论何时它都应该被重写。
          *
-         * @param action The action
-         * @throws NullPointerException if the specified action is null
+         * @param action 动作
+         * @throws NullPointerException 如果指定的动作是null
          */
         @SuppressWarnings("overloads")
         default void forEachRemaining(T_CONS action) {
@@ -591,7 +539,7 @@ public interface Spliterator<T> {
     }
 
     /**
-     * A Spliterator specialized for {@code int} values.
+     * 一个专门用于int值的Spliterator
      * @since 1.8
      */
     public interface OfInt extends OfPrimitive<Integer, IntConsumer, OfInt> {
@@ -610,12 +558,9 @@ public interface Spliterator<T> {
         /**
          * {@inheritDoc}
          * @implSpec
-         * If the action is an instance of {@code IntConsumer} then it is cast
-         * to {@code IntConsumer} and passed to
-         * {@link #tryAdvance(java.util.function.IntConsumer)}; otherwise
-         * the action is adapted to an instance of {@code IntConsumer}, by
-         * boxing the argument of {@code IntConsumer}, and then passed to
-         * {@link #tryAdvance(java.util.function.IntConsumer)}.
+         * 如果action是IntConsumer的实例，那么将它强制转换成IntConsumer，并传递给
+         * tryAdvance(java.util.function.IntConsumer)；否则，action被适配成IntConsumer的实例，
+         * 通过装箱IntConsumer的参数，然后传递给tryAdvance(java.util.function.IntConsumer)。
          */
         @Override
         default boolean tryAdvance(Consumer<? super Integer> action) {
@@ -784,6 +729,128 @@ public interface Spliterator<T> {
     }
 }
 ```
+
+在阅读javadoc和源码的过程中，发现了一段有趣的代码：
+
+```java
+@Override
+default boolean tryAdvance(Consumer<? super Integer> action) {
+    if (action instanceof IntConsumer) {
+        return tryAdvance((IntConsumer) action);
+    }
+    else {
+        if (Tripwire.ENABLED)
+            Tripwire.trip(getClass(),
+                            "{0} calling Spliterator.OfInt.tryAdvance((IntConsumer) action::accept)");
+        return tryAdvance((IntConsumer) action::accept);
+    }
+}
+```
+
+疑问1：Consumer 和 IntConsumer是两个不同的函数式接口，并且没有层次关系，
+那为什么可以用 instanceof 关键字来对Consumer的实例判断是否位IntConsumer类型的？
+
+疑问2：方法最后一行是什么意思？action::accept在之前的学习中从来没有遇到过。
+
+带着这两个疑问，笔者写了demo示例做实验。
+```java
+public class ConsumerTest {
+    public static void main(String[] args) {
+        Consumer consumer = i -> System.out.println(i);
+        IntConsumer intConsumer = i -> System.out.println(i);
+        tryAdvance(consumer);//面向对象方式，传递的是引用值。
+//        tryAdvance(intConsumer);//编译不通过。
+        System.out.println("---");
+        tryAdvance(intConsumer::accept); //函数式方法，传递的是行为，即lambda表达式。
+    }
+
+    public static void tryAdvance(Consumer<Integer> action) {
+        if(action instanceof IntConsumer) {
+            System.out.println(true);
+            action.accept(10);
+        } else {
+            IntConsumer consumer1 = (IntConsumer)action::accept;
+            consumer1.accept(10);
+        }
+    }
+}
+```
+程序打印：<br/>
+10<br/>
+---<br/>
+10<br/>
+
+分析：<br/>
+最终都没有执行第一个if的逻辑。`tryAdvance(intConsumer::accept);`这种方式，其实传递的就是intConsumer的方法引用，运行的时候它指向IntConsumer的accept(int)方法。把鼠标放在intConusmer上，它提示是IntConsumer，把鼠标
+放在accept上，它也提示是IntConsumer的；但是放在::上它提示的却是Consumer；那是因为tryAdvance是Consumer的。
+
+但是lambda表达式`i -> System.out.println(i)`既可以是Consumer类型的，又可以是IntConsumer类型的。
+
+笔者分析到这就到头了。然后在网上找到了类似的疑问解析。
+
+https://codeday.me/bug/20180823/222106.html 是一篇译文。<br/>
+原文链接：https://stackoverflow.com/questions/44288838/casting-java-functional-interfaces<br/>
+不得不佩服老外的钻研能力。
+
+最终还是追溯到对设计模式的应用：类适配设计模式(Class Adapter Design Pattern)
+原文链接：https://stackoverflow.com/questions/9978477/difference-between-object-adapter-pattern-and-class-adapter-pattern
+
+我们知道，类可以实现多个接口，由此：
+
+```java
+class IntConsumerAdapter implements Consumer<Integer>, IntConsumer {
+
+    @Override
+    public void accept(Integer value) {
+        System.out.println("Consumer:" + value);
+//        accept(value.intValue()); //适配
+    }
+
+    @Override
+    public void accept(int value) {
+        System.out.println("IntConsumer:" + value);
+    }
+}
+```
+
+```java
+class IntConsumerAdapter implements Consumer<Integer>, IntConsumer {
+
+    @Override
+    public void accept(Integer value) {
+        System.out.println("Consumer:" + value);
+//        accept(value.intValue()); //适配
+    }
+
+    @Override
+    public void accept(int value) {
+        System.out.println("IntConsumer:" + value);
+    }
+}
+```
+
+```java
+public static void main(String[] args) {
+    Consumer consumer3 = new IntConsumerAdapter();
+    tryAdvance(consumer3);
+    System.out.println("---");
+    IntConsumer consumer4 = new IntConsumerAdapter();
+    tryAdvance(consumer4::accept);
+}
+```
+
+程序打印：<br/>
+true<br/>
+Consumer:10<br/>
+---<br/>
+IntConsumer:10<br/>
+
+我们看到，终于执行了if中的逻辑，即consumer3是IntConsumer的实例。
+
+注意：这是Class Adapter Design Pattern的用法。
+
+那么你可以使用IntConsumerAdapter作为Consumer< Integer>和IntConsumer。
+
 &emsp;&emsp;<br/>
 &emsp;&emsp;<br/>
 &emsp;&emsp;<br/>
