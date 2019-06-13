@@ -34,8 +34,15 @@ default Stream<E> stream() {
     return StreamSupport.stream(spliterator(), false);
 }
 ```
+&emsp;&emsp;继续跟进spliterator()方法，debug下，跟到了ArrayList in Arrays中：<br/>
+```java
+@Override
+public Spliterator<E> spliterator() {
+    return Spliterators.spliterator(a, Spliterator.ORDERED);
+}
+```
 
-&emsp;&emsp;继续跟进spliterator()方法，它也位于Collection接口中：<br/>
+&emsp;&emsp;我们知道Collection是集合的顶层接口，Collection接口中定义了default spliterator()方法，有着丰富的javadoc说明：<br/>
 
 ```java
 /**
@@ -814,22 +821,6 @@ class IntConsumerAdapter implements Consumer<Integer>, IntConsumer {
 ```
 
 ```java
-class IntConsumerAdapter implements Consumer<Integer>, IntConsumer {
-
-    @Override
-    public void accept(Integer value) {
-        System.out.println("Consumer:" + value);
-//        accept(value.intValue()); //适配
-    }
-
-    @Override
-    public void accept(int value) {
-        System.out.println("IntConsumer:" + value);
-    }
-}
-```
-
-```java
 public static void main(String[] args) {
     Consumer consumer3 = new IntConsumerAdapter();
     tryAdvance(consumer3);
@@ -851,51 +842,6 @@ IntConsumer:10<br/>
 
 那么你可以使用IntConsumerAdapter作为Consumer< Integer>和IntConsumer。
 
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
+本文主要是在分析stream底层源码中对Spliterator的源码进行了分析，下一篇文章继续分析流底层源码。
+
+
