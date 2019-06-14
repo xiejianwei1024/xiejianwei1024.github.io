@@ -276,10 +276,46 @@ abstract class ReferencePipeline<P_IN, P_OUT>
 }
 ```
 
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
-&emsp;&emsp;<br/>
+&emsp;&emsp;ReferencePipeline表示流的源阶段和中间阶段<br/>
+&emsp;&emsp;ReferencePipeline.Head表示流的源阶段<br/>
+&emsp;&emsp;二者在大部分属性的设定上都是类似的，但存在一些属性是不同的，比如说Head是没有previousStage的，而ReferencePipeline则是存在previousStage的。<br/>
+
+
+&emsp;&emsp;我们继续阅读它的父类javadoc：<br/>
+
+```java
+/**
+ * 对于"pipeline"类的抽象父类， 这些管道类是流接口和流接口原生特化的核心实现。
+ * 管理流管道的构建和计算。 
+ *
+ * AbstractPipeline表示六段到的初始化部分，封装了流的源和零个多个中间操作。
+ * 单独的AbstractPipeline对象通常称为stages，其中每个阶段描述流源或中间操作。
+ *
+ * 一个具体的中间阶段通常是从一个AbstractPipeline构建的，
+ * (shape-specific pipeline class)特化的管道类例如IntPipeline继承自AbstractPipeline，
+ * 也是抽象的，特定于操作的具体类。AbstractPipeline包含了大多数计算管道的机制，
+ * 并且实现了用于操作的方法；这些特化的类添加了一些辅助方法（用于处理结果容器）到适合的特化容器中。
+ * （避免装箱拆箱）
+ *
+ * 在链接一个新的中间操作或执行一个终端操作之后，流被认为是已被使用消费了的，
+ * 并且不允许在这个流实例上进行更多的中间操作或终端操作。
+ *
+ * @implNote
+ * 对于串行流，以及( stateful intermediate operations)中间操作都是无状态的并行流来说，
+ * 管道计算是在一趟(pass)过程中完成的，在这一趟过程中会将所有的操作放到一起。
+ * 对于有状态的这种并行流来说，执行被分割成几个片段，每一个有状态的操作标记着一个片段的结尾，
+ * 每一个片段被分开计算，并且计算的结果作为下一个片段的输入。
+ * 在所有的情况下，源数据直到终止操作开始的时候才会被消费。
+ *
+ * @param <E_IN>  输入元素类型
+ * @param <E_OUT> 输出元素类型
+ * @param <S> 实现BaseStream的子类类型
+ * @since 1.8
+ */
+abstract class AbstractPipeline<E_IN, E_OUT, S extends BaseStream<E_OUT, S>>
+        extends PipelineHelper<E_OUT> implements BaseStream<E_OUT, S> {}
+```
+
 &emsp;&emsp;<br/>
 &emsp;&emsp;<br/>
 &emsp;&emsp;<br/>
