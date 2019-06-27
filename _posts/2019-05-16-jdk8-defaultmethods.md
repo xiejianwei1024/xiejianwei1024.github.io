@@ -34,7 +34,6 @@ Collections.sort(inventory, new Comparator<Apple>() {
         return a1.getWeight().compareTo(a2.getWeight());
     }
 }); 
-}
 ```
 
 根据语义来说，我们根本没必要引入 Collections，明明是对库存中的苹果排序，在jdk8中，是这样做的：
@@ -74,7 +73,7 @@ public interface MyInterface1 {
 ### 可选方法
 
 类实现了接口，不过却刻意地将一些方法的实现留白。我们以 Iterator接口为例来说。Iterator接口定义了hasNext、next，还定义了remove方法。Java 8 之前，由于用户通常不会使用该方法，remove方法常被忽略。因此，实现Interator接口的类通常会为remove方法放置一个空的实现，这些都是些毫无用处的模板代码。
-采用默认方法之后，你可以为这种类型的方法提供一个默认的实现，这样实体类就无需在自 己的实现中显式地提供一个空方法。比如，在Java 8中，Iterator接口就为remove方法提供了 一个默认实现，如下所示：
+采用默认方法之后，你可以为这种类型的方法提供一个默认的实现，这样实体类就无需在自己的实现中显式地提供一个空方法。比如，在Java 8中，Iterator接口就为remove方法提供了一个默认实现，如下所示：
 ```java
 interface Iterator<T> {
     boolean hasNext();
@@ -230,7 +229,7 @@ public class C extends D implements B, A {
 
 打印输出：Hello from C
 
-解析：，虽然在结构上，其他的地方已经声明了默认方法的实现，C还是必须提供自己的hello方法。
+解析：虽然在结构上，其他的地方已经声明了默认方法的实现，C还是必须提供自己的hello方法。
 
 示例5：假设B 不再继承A
 ```java

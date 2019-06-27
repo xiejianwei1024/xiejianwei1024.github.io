@@ -288,7 +288,7 @@ abstract class ReferencePipeline<P_IN, P_OUT>
  * 对于"pipeline"类的抽象父类， 这些管道类是流接口和流接口原生特化的核心实现。
  * 管理流管道的构建和计算。 
  *
- * AbstractPipeline表示六段到的初始化部分，封装了流的源和零个多个中间操作。
+ * AbstractPipeline表示流管道的初始化部分，封装了流的源和零个多个中间操作。
  * 单独的AbstractPipeline对象通常称为stages，其中每个阶段描述流源或中间操作。
  *
  * 一个具体的中间阶段通常是从一个AbstractPipeline构建的，
@@ -313,7 +313,173 @@ abstract class ReferencePipeline<P_IN, P_OUT>
  * @since 1.8
  */
 abstract class AbstractPipeline<E_IN, E_OUT, S extends BaseStream<E_OUT, S>>
-        extends PipelineHelper<E_OUT> implements BaseStream<E_OUT, S> {}
+        extends PipelineHelper<E_OUT> implements BaseStream<E_OUT, S> {
+    
+    /**
+     * 源的分割迭代器。只对头管道有效。
+     * 头管道被消费前，如果是non-null的，那么sourceSupplier必须是null。
+     * 头管道被消费后，如果是non-null的，那么要被设置成null。
+     */
+    private Spliterator<?> sourceSpliterator;
+
+    /**
+     * 源的提供者只对头管道有效。
+     * 头管道被消费前，如果是non-null的，那么sourceSpliterator必须是null。
+     * 头管道被消费后，如果是non-null的，那么要被设置成null。
+     */
+    private Supplier<? extends Spliterator<?>> sourceSupplier;
+
+/**
+     * 构造一个流管道的head。
+     *
+     * @param source {@code Supplier<Spliterator>} describing the stream source
+     * @param sourceFlags The source flags for the stream source, described in
+     * {@link StreamOpFlag}
+     * @param parallel True if the pipeline is parallel
+     */
+    AbstractPipeline(Supplier<? extends Spliterator<?>> source,
+                     int sourceFlags, boolean parallel) {
+        this.previousStage = null;
+        this.sourceSupplier = source;
+        this.sourceStage = this;
+        this.sourceOrOpFlags = sourceFlags & StreamOpFlag.STREAM_MASK;
+        // The following is an optimization of:
+        // StreamOpFlag.combineOpFlags(sourceOrOpFlags, StreamOpFlag.INITIAL_OPS_VALUE);
+        this.combinedFlags = (~(sourceOrOpFlags << 1)) & StreamOpFlag.INITIAL_OPS_VALUE;
+        this.depth = 0;
+        this.parallel = parallel;
+    }
+
+    /**
+     * 构造一个流管道的head。
+     *
+     * @param source {@code Spliterator} describing the stream source
+     * @param sourceFlags the source flags for the stream source, described in
+     * {@link StreamOpFlag}
+     * @param parallel {@code true} if the pipeline is parallel
+     */
+    AbstractPipeline(Spliterator<?> source,
+                     int sourceFlags, boolean parallel) {
+        this.previousStage = null;
+        this.sourceSpliterator = source;
+        this.sourceStage = this;
+        this.sourceOrOpFlags = sourceFlags & StreamOpFlag.STREAM_MASK;
+        // The following is an optimization of:
+        // StreamOpFlag.combineOpFlags(sourceOrOpFlags, StreamOpFlag.INITIAL_OPS_VALUE);
+        this.combinedFlags = (~(sourceOrOpFlags << 1)) & StreamOpFlag.INITIAL_OPS_VALUE;
+        this.depth = 0;
+        this.parallel = parallel;
+    }
+
+
+/**
+     * 追加一个中间操作阶段到一个已经存在的管道上。
+     * (双向链表：previousStage.nextStage = this;this.previousStage = previousStage;)
+     *
+     * @param previousStage 上游管道阶段
+     * @param opFlags the operation flags for the new stage, described in
+     * {@link StreamOpFlag}
+     */
+    AbstractPipeline(AbstractPipeline<?, E_IN, ?> previousStage, int opFlags) {
+        if (previousStage.linkedOrConsumed)
+            throw new IllegalStateException(MSG_STREAM_LINKED);
+        previousStage.linkedOrConsumed = true;
+        previousStage.nextStage = this;
+
+        this.previousStage = previousStage;
+        this.sourceOrOpFlags = opFlags & StreamOpFlag.OP_MASK;
+        this.combinedFlags = StreamOpFlag.combineOpFlags(opFlags, previousStage.combinedFlags);
+        this.sourceStage = previousStage.sourceStage;
+        if (opIsStateful())
+            sourceStage.sourceAnyStateful = true;
+        this.depth = previousStage.depth + 1;
+    }
+
+}
+```
+
+
+```java
+
+/**
+ * 继承了Consumer，用于通过流管道的各个阶段传递值，还有额外的方法去管理size信息，
+ * 控制流程等等。在首次调用Sink的accept()方法之前，必须先调用begin()方法来去通知
+ * 它，数据马上就要过来了(可选的，还可以通知sink，数据量是多少)，在所有数据都被发送
+ * 过来之后，必须调用end()方法。在调用完end()方法后，没有再次调用begin()的情况下，
+ * 不能调用accept()方法。Sink还提供了一种机制，通过这种机制，Sink可以协作地发出信号，
+ * 表示它不希望接收更多的数据(cancellationrequired()方法)，
+ * 源可以在向Sink发送更多数据之前轮询这些数据。
+ *
+ * sink可能处于两种状态之一：初始状态和激活状态。
+ * 它从初始状态开始，begin()方法将它转换为激活状态，end()方法又将它转回初始状态，
+ * 这样sink就可以被重用了。数据接收方法(比如 accept())只在激活状态有效。
+ *
+ * @apiNote
+ * 流管道包括源，零个或多个中间阶段（比如filtering 或者 mapping）和一个终止阶段,比如。
+ * reduction或 for-each.  具体来说，考虑管道:
+ *
+ *     int longestStringLengthStartingWithA
+ *         = strings.stream()
+ *                  .filter(s -> s.startsWith("A"))
+ *                  .mapToInt(String::length)
+ *                  .max();
+ *
+ * 这里，我们有三个阶段，filtering, mapping, and reducing。
+ * filtering 阶段消费字符串并且输出字符串的子集；
+ * mapping 阶段消费字符串并且输出整型长度；
+ * reduction 阶段消费那些整型并且计算最大值。
+ *
+ * Sink实例用于表示当前管道的每一个阶段，不论这个阶段接收的是对象也好，
+ * ints, longs, or doubles也好。Sink对于accept(Object)，accept(int)等等
+ * 都有一个入口点，这样针对每一个原生特化，我们就不需要特化接口了。
+ * 管道的入口点就是Sink的filtering阶段，它发送了一些元素给下游，即Sink的mapping阶段，
+ * 转而发送整型值给下游，即Sink的reduction阶段。
+ * 与给定阶段关联的Sink实现应该知道下一阶段的数据类型，并在其下游Sink上调用正确的accept方法。
+ * 类似地，每个阶段必须实现与它接受的数据类型相对应的accept方法。
+ *
+ * <p>The specialized subtypes such as {@link Sink.OfInt} override
+ * {@code accept(Object)} to call the appropriate primitive specialization of
+ * {@code accept}, implement the appropriate primitive specialization of
+ * {@code Consumer}, and re-abstract the appropriate primitive specialization of
+ * {@code accept}.
+ *
+ * <p>The chaining subtypes such as {@link ChainedInt} not only implement
+ * {@code Sink.OfInt}, but also maintain a {@code downstream} field which
+ * represents the downstream {@code Sink}, and implement the methods
+ * {@code begin()}, {@code end()}, and {@code cancellationRequested()} to
+ * delegate to the downstream {@code Sink}.  Most implementations of
+ * intermediate operations will use these chaining wrappers.  For example, the
+ * mapping stage in the above example would look like:
+ *
+ * <pre>{@code
+ *     IntSink is = new Sink.ChainedReference<U>(sink) {
+ *         public void accept(U u) {
+ *             downstream.accept(mapper.applyAsInt(u));
+ *         }
+ *     };
+ * }</pre>
+ *
+ * <p>Here, we implement {@code Sink.ChainedReference<U>}, meaning that we expect
+ * to receive elements of type {@code U} as input, and pass the downstream sink
+ * to the constructor.  Because the next stage expects to receive integers, we
+ * must call the {@code accept(int)} method when emitting values to the downstream.
+ * The {@code accept()} method applies the mapping function from {@code U} to
+ * {@code int} and passes the resulting value to the downstream {@code Sink}.
+ *
+ * @param <T> type of elements for value streams
+ * @since 1.8
+ */
+interface Sink<T> extends Consumer<T> {
+
+
+    /**
+     * 抽象的Sink实现，用于创建sink链。beigin，end，和cancellationRequested方法
+     * 都被链接到下游Sink。该实现接收一个未知输入类型的下游接Sink，并生成一个接收器<T>。
+     * accept()方法的实现必须调用下游Sink正确的accept()方法。
+     */
+    static abstract class ChainedReference<T, E_OUT> implements Sink<T> {}
+}
+
 ```
 
 &emsp;&emsp;<br/>
