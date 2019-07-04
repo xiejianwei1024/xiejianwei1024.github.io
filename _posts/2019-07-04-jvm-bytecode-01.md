@@ -38,7 +38,6 @@ D:\IdeaProjects\jvm_study\out\production\classes>javap -verbose com.jvm.bytecode
 1.使用 javap -verbose 命令分析一个字节码文件时，将会分析该字节码文件的魔数、版本号、常量池、类信息、类的构造方法、类中的方法信息、类变量与成员变量等信息。
 
 2.魔数：所有的.class字节码文件的前4个字节都是魔数，魔数值为固定值：0xCAFEBABE。
-38_Java字节码常量池深入剖析
 
 3.魔数之后的4个字节为版本信息，前两个字节表示minor version（次版本号），后两个字节表示major version（主版本号）。这里的版本号为00 00 00 34，换算成十进制，表示次版本号为0，主版本号为52。所以，该文件的版本号为1.8.0，其中52对应jdk版本为1.8。可以通过java -version命令来验证这一点。
 
