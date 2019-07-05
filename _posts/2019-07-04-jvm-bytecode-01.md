@@ -3,6 +3,8 @@ layout: post
 title: JVM java字节码文件结构
 ---
 
+首先请Java虚拟机规范出场：
+https://docs.oracle.com/javase/specs/jvms/se8/html/
 
 MyTest1.java源文件如下：
 
@@ -48,6 +50,112 @@ D:\IdeaProjects\jvm_study\out\production\classes>javap -verbose com.jvm.bytecode
 6.在JVM规范中，每个变量/字段都有描述信息，描述信息的主要作用是描述字段的数据类型、方法的参数列表（包括数量、类型与顺序）与返回值。根据描述规则，基本数据类型和代表无返回值的void类型都用一个大写字母来表示，对象类型则使用字符L加对象的全限定名称来表示。为了压缩字节码文件的体积，对于基本数据类型，JVM都使用一个大写字母来表示，如下所示：B – byte,  C – char,  D – double,  F – float,  I – int,  J – long,  S – short,
 Z – boolean,  V – void,  L – 对象类型，如Ljava/lang/String;
 
-7.对于数据类型来说，每一个维度都是用一个前置的[来表示，如int[]被记录为[I，String[][]被记录为[[Ljava/lang/String;
+7.对于数组类型来说，每一个维度都是用一个前置的[来表示，如int[]被记录为[I，String[][]被记录为[[Ljava/lang/String;
 
 8.用描述符描述方法时，按照先参数列表，后返回值的顺序来描述。参数列表按照参数的严格顺序放在一组()之内，如方法：String getReakNameAndNickName(int id, String name)的描述符为：(I, Ljava/lang/String;)Ljava/lang/String;
+
+先来看一下MyTest1.class是以16进制存储的文件：
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode05.png)
+
+其实，class文件也是严格按照规定来编排的，它遵循着下面的结构：
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode06.png)
+
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode10.png)
+
+我们开始分析：
+
+前4个字节为魔数：Magic Number，0xCA FE BA BE。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode07.png)
+
+
+魔数之后的4个字节为版本信息：Version，0x00 00 00 34，前两个字节表示minor version（次版本号），后两个字节表示major version（主版本号）。换算成十进制，表示次版本号为0，主版本号为52。其中52对应jdk版本为1.8。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode08.png)
+
+
+紧接着主版本号之后的就是常量池入口：常量池主要由常量池数量与常量池数组（常量表）这两部分共同构成。常量池数量紧跟在主版本号后面，占据两个字节；常量池数组则紧跟在常量池数量之后。<br/>
+常量池数量：0x00 18，换算成10进制，表示24。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode09.png)
+
+常量表的分析要用到下面的表格：
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode11.png)
+
+常量池数组中不同的元素的类型、结构都是不同的，长度当然也不同；但是，每一种元素的第一个数据都是u1类型，该字节是个标志位，占据1个字节。
+
+常量表的第一个元素的第一个数据是：0A，换算成10进制，表示10，去表格中找u1类型，值为10的，Methodref。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode12.png)
+
+下图为值为10的常量：Methodref
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode13.png)
+
+CONSTANT_Methodref_Info：该常量包含三部分，
+tag,index,index。我们已经知道tag的值。
+第一个index：00 04，指向声明方法的类描述符CONSTANT_Class_info的索引项。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode14.png)
+
+第二个index：00 14，换算成10进制，表示20。指向名称及类型描述符CONSTANT_NameAndType_info的索引项。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode15.png)
+
+以上是常量池中第一个元素的信息：0x0A 00 04 00 14，表示Methodref。
+
+第二个元素的第一个数据是：09。去表格中找u1类型，值为9的，Fieldref。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode16.png)
+
+下图值为9的常量：Fieldref
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode17.png)
+
+CONSTANT_Fieldref_Info：该常量包含三部分，
+tag,index,index。我们已经知道tag的值。
+第一个index：00 03，指向声明字段的类或者接口描述符CONSTANT_Class_info的索引项。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode18.png)
+
+第二个index：00 15，换算成10进制，表示21。指向字段描述符CONSTANT_NameAndType_info的索引项。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode19.png)
+
+以上是常量池中第二个元素的信息：0x09 00 03 00 15 ，表示Fieldref。
+
+第三个元素的第一个数据是：07。去表格中找u1类型，值为7的，Class。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode20.png)
+
+下图值为7的常量：Class
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode21.png)
+
+CONSTANT_Fieldref_Info：该常量包含两部分， tag,index。我们已经知道tag的值。 index：00 16，换算成10进制，表示22。指向全限定名常量项的索引。
+
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode22.png)
+
+以上是常量池中第三个元素的信息：0x07 00 16 ，表示Class。
+
+第四个元素的第一个数据是：07。去表格中找u1类型，值为7的，Class。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode23.png)
+
+CONSTANT_Fieldref_Info：该常量包含两部分， tag,index。我们已经知道tag的值。 index：00 17，换算成10进制，表示23。指向全限定名常量项的索引。
+
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode24.png)
+
+以上是常量池中第四个元素的信息：0x07 00 17 ，表示Class。
+
+第五个元素的第一个数据是：01。去表格中找u1类型，值为1的，Utf8。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode25.png)
+
+下图值为7的常量：Utf8
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode26.png)
+
+CONSTANT_Utf8_Info：该常量包含三部分，tag，length，bytes。我们已经知道tag的值。<br/>
+length：00 01。UTF-8编码的字符串长度。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode27.png)
+
+byte：61。换算成10进制，表示97。长度为length的UTF-8编码的字符串。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode28.png)
+
+以上是常量池中第五个元素的信息：01 00 01 61 ，表示Utf8。
+
+第六个元素的第一个数据是：01。去表格中找u1类型，值为1的，Utf8。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode29.png)
+
+length：00 01
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode30.png)
+
+byte：49。换算成10进制，表示73。长度为length的UTF-8编码的字符串。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode31.png)
+
+以上是常量池中第六个元素的信息：01 00 01 49 ，表示Utf8。
