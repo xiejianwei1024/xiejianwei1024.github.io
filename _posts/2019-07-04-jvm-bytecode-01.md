@@ -276,9 +276,21 @@ byte：73 65 74 41。length后面数4个字节，换算成10进制，表示115 1
 length：00 04
 ![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode60.png)
 
-byte：28 49 29 56。length后面数4个字节，换算成10进制，表示115 101 116 65，每个字节对应的字符串分别为s e t A，合起来就是setA。长度为length的UTF-8编码的字符串。
+byte：28 49 29 56。length后面数4个字节，换算成10进制，表示40 73 41 86，每个字节对应的字符串分别为( I ) V，合起来就是(I)V。长度为length的UTF-8编码的字符串。
 ![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode61.png)
 
 以上是常量池中第17个元素的信息：01 00 04 28 49 29 56，表示Utf8。
+
+第18个元素的第一个数据是：01。去表格中找u1类型，值为1的，Utf8。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode62.png)
+
+length：00 0A
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode63.png)
+
+byte：53 6F 75 72 63 65 46 69 6C 65。length后面数10个字节，换算成10进制，表示83 111 117 114 99 101 70 73 108 101，每个字节对应的字符串分别为S o u r c e F i l e，合起来就是SourceFile。长度为length的UTF-8编码的字符串。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode64.png)
+
+以上是常量池中第18个元素的信息：01 00 0A 53 6F 75 72 63 65 46 69 6C 65，表示Utf8。
+
 
 
