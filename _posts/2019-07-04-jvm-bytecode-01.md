@@ -292,5 +292,70 @@ byte：53 6F 75 72 63 65 46 69 6C 65。length后面数10个字节，换算成10�
 
 以上是常量池中第18个元素的信息：01 00 0A 53 6F 75 72 63 65 46 69 6C 65，表示Utf8。
 
+第19个元素的第一个数据是：01。去表格中找u1类型，值为1的，Utf8。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode65.png)
+
+length：00 0C
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode66.png)
+
+byte：4D 79 54 65 73 74 31 2E 6A 61 76 61。length后面数12个字节，换算成10进制，表示77 121 84 101 115 116 49 46 106 97 118 97，每个字节对应的字符串分别为M y T e s t 1 . j a v a，合起来就是MyTest1.java。长度为length的UTF-8编码的字符串。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode67.png)
+
+以上是常量池中第19个元素的信息：01 00 0C 4D 79 54 65 73 74 31 2E 6A 61 76 61，表示Utf8。
+
+第20个元素的第一个数据是：0C。去表格中找u1类型，值为12的，NameAndType。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode68.png)
+
+下图值为12的常量：NameAndType 
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode69.png)
+
+CONSTANT_NameAndType_Info：该常量包含三部分， tag,index,index。我们已经知道tag的值。 第一个index：00 07，指向该字段或方法名称常量项的索引。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode70.png)
+
+第二个index：00 08。指向该字段或方法描述符常量项的索引。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode71.png)
+
+以上是常量池中第20个元素的信息：0C 00 07 00 08，表示NameAndType。
+
+第21个元素的第一个数据是：0C。去表格中找u1类型，值为12的，NameAndType。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode72.png)
+
+下图值为12的常量：NameAndType 
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode69.png)
+
+CONSTANT_NameAndType_Info：该常量包含三部分， tag,index,index。我们已经知道tag的值。 第一个index：00 05，指向该字段或方法名称常量项的索引。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode73.png)
+
+第二个index：00 06。指向该字段或方法描述符常量项的索引。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode74.png)
+
+以上是常量池中第21个元素的信息：0C 00 05 00 06，表示NameAndType。
+
+第22个元素的第一个数据是：01。去表格中找u1类型，值为1的，Utf8。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode75.png)
+
+length：00 18
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode76.png)
+
+byte：63 6F 6D 2F 6A 76 6D 2F 62 79 74 65 63 6F 64 65 2F 4D 79 54 65 73 74 31。length后面数24个字节，换算成10进制，表示99 111 109 47 106 118 109 47 98 121 116 101 99 111 100 101 47 77 121 84 101 115 116 49，每个字节对应的字符串分别为c o m / j v m / b y t e c o d e / M y T e st 1，合起来就是com/jvm/bytecode/MyTest1。长度为length的UTF-8编码的字符串。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode77.png)
+
+以上是常量池中第22个元素的信息：01 00 18 63 6F 6D 2F 6A 76 6D 2F 62 79 74 65 63 6F 64 65 2F 4D 79 54 65 73 74 31，表示Utf8。
+
+第23个元素的第一个数据是：01。去表格中找u1类型，值为1的，Utf8。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode78.png)
+
+length：00 10
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode79.png)
+
+byte：6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74 。length后面数16个字节，换算成10进制，表示106 97 118 97 47 108 97 110 103 47 79 98 106 101 99 116，每个字节对应的字符串分别为j a v a / l a n g / O b j e c t，合起来就是java/lang/Object。长度为length的UTF-8编码的字符串。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode80.png)
+
+以上是常量池中第23个元素的信息：01 00 10 6A 61 76 61 2F 6C  61 6E 67 2F 4F 62 6A 65 63 74，表示Utf8。
+
+以上是常量池的信息。
+
+
+
 
 
