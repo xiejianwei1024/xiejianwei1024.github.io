@@ -167,6 +167,7 @@ length：00 06
 ![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode33.png)
 
 byte：3C 69 6E  69 74 3E。length后面数6个字节，换算成10进制，表示60 105 110 105 116 52，每个字节对应的字符串分别为< i n i t >，合起来就是<init>。长度为length的UTF-8编码的字符串。
+
 ![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode34.png)
 
 以上是常量池中第七个元素的信息：01 00 06 3C 69 6E  69 74 3E，表示Utf8。
@@ -354,6 +355,72 @@ byte：6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74 。length后面数16个�
 以上是常量池中第23个元素的信息：01 00 10 6A 61 76 61 2F 6C  61 6E 67 2F 4F 62 6A 65 63 74，表示Utf8。
 
 以上是常量池的信息。
+
+根据java字节码组成结构图，接下来的两个字节是U2类型的，access_flags(类的访问控制权限)。
+访问标志信息包括该Class文件是类还是接口，是否被定义成public，是否是abstract，如果是类，是否被声明成final。通过上面的源代码，我们知道该文件是类并且是public。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode81.png)
+
+对应到MyTest1.class中的是：00 21，是0x0020和0x0001的并集，表示ACC_PUBLIC, ACC_SUPER。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode82.png)
+
+根据java字节码组成结构图，接下来的两个字节是U2类型的，this_class(类名)。<br/>
+类索引：00 03。com/shengsiyuan/jvm/bytecode/MyTest1（This Class Name）
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode83.png)
+
+根据java字节码组成结构图，接下来的两个字节是U2类型的，super_class(父类名)。<br/>
+父类索引：00 04。java/lang/Object（Super Class Name）
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode84.png)
+
+根据java字节码组成结构图，接下来的两个字节是U2类型的，interface_count(接口个数)。<br/>
+接口索引：00 00。0（接口个数为0，说明当前类没有实现接口。所以接口名不会出现在字节码文件中。如果接口数大于等于1，那么接口名会出现在字节码文件中，并且占两个字节。）
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode85.png)
+
+根据java字节码组成结构图，接下来的两个字节是U2类型的， (fields_count)域个数，
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode086.png)
+
+根据java字节码组成结构图，接下来的是 (fields)域的表，它遵循如下的结构：
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode86.png)
+
+字段表的access_flags，字段访问标志：
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode87.png)
+
+字段表用于描述类和接口中声明的变量。这里的字段包含了类级别变量以及实例变量，但是不包括方法内部声明的局部变量。
+
+access_flags，前两个字节00 02，去字段访问标志中找到对应的值：ACC_PRIVATE，字段是否private。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode88.png)
+
+name_index，00 05，去常量池中找索引值为5的，表示a。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode89.png)
+
+descriptor_index，00 06，去常量池中找索引值为6的，表示I。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode90.png)
+
+attributes_count，00 00。attributes_count为0，attribute_info就不会出现在字节码文件中了。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode91.png)
+
+以上是字段表的信息。
+
+接下来的两个字节是方法的个数，00 03，表示有三个方法。
+attributes_count，00 00。attributes_count为0，attribute_info就不会出现在字节码文件中了。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode92.png)
+
+下面是方法表的结构：
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode93.png)
+
+下面是方法访问标志，access_flags的表：
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode94.png)
+
+access_flags，00 01，表示ACC_PUBLIC，方法是否为public。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode95.png)
+
+name_index，00 07，去常量池中找索引值为7的，表示<init>。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode96.png)
+
+
+
+
+
+
 
 
 
