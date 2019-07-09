@@ -166,7 +166,7 @@ byte：49。换算成10进制，表示73，对应字符串为I。长度为length
 length：00 06
 ![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode33.png)
 
-byte：3C 69 6E  69 74 3E。length后面数6个字节，换算成10进制，表示60 105 110 105 116 52，每个字节对应的字符串分别为< i n i t >，合起来就是<init>。长度为length的UTF-8编码的字符串。
+byte：3C 69 6E  69 74 3E。length后面数6个字节，换算成10进制，表示60 105 110 105 116 52，每个字节对应的字符串分别为< i n i t >，合起来就是`<init>`。长度为length的UTF-8编码的字符串。
 
 ![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode34.png)
 
@@ -413,7 +413,7 @@ attributes_count，00 00。attributes_count为0，attribute_info就不会出现�
 access_flags，00 01，表示ACC_PUBLIC，方法是否为public。
 ![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode95.png)
 
-name_index，00 07，去常量池中找索引值为7的，表示<init>。
+name_index，00 07，去常量池中找索引值为7的，表示`<init>`。
 ![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode96.png)
 
 
