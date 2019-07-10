@@ -416,8 +416,27 @@ access_flags，00 01，表示ACC_PUBLIC，方法是否为public。
 name_index，00 07，去常量池中找索引值为7的，表示`<init>`。
 ![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode96.png)
 
+descriptor_index，00 08，去常量池中找索引值为8的，表示()V。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode97.png)
 
+attributes_count，00 01，表示该方法的属性结构数量是1。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode98.png)
 
+attribute_info的结构如下：
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode99.png)
+
+attribute_name_index，00 09，去常量池中寻找索引值为9的，表示Code。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode100.png)
+
+attribute_length：00 00 00 38，转换成10进制，表示56，那么数56个字节。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode101.png)
+
+info[attribute_length]：又是一个结构体。<br/>
+所有Code属性表如下，它包含了attribute_name_index和attribute_length：
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode102.png)
+
+结构体为：
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode103.png)
 
 
 
