@@ -431,12 +431,71 @@ attribute_name_index，00 09，去常量池中寻找索引值为9的，表示Cod
 attribute_length：00 00 00 38，转换成10进制，表示56，那么数56个字节。
 ![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode101.png)
 
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode1011.png)
+
 info[attribute_length]：又是一个结构体。<br/>
 所有Code属性表如下，它包含了attribute_name_index和attribute_length：
 ![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode102.png)
 
 结构体为：
 ![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode103.png)
+
+先给出各个属性的意思：
+*   attribute_length表示attribute所包含的字节数，不包含attribute_name_index和attribute_length字段。
+*   max_stack表示这个方法运行的任何时刻所能达到的操作数栈的最大深度。
+*   max_locals表示方法执行期间创建的局部变量的数目，包含用来表示传入的参数的局部变量。
+*   code_length表示该方法所包含的字节码的字节数以及具体的指令码。具体字节码是该方法调用时，虚拟机所执行的字节码。
+*   exception_table这里存放的是处理异常的信息。每个exception_table表项有start_pc，end_pc，handler_pc，catch_type组成。
+*   start_pc和end_pc表示在Code数组中的从start_pc到end_pc处（包含start_pc，不包含end_pc）的指令抛出的异常会由这个表项来处理。
+*   handler_pc表示处理异常的代码的开始处。
+*   catch_type表示会被处理的异常类型，它指向常量池里的一个异常类。当catch_type为0时，表示处理所有的异常。
+
+max_stack：00 02
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode104.png)
+
+max_locals：00 01
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode105.png)
+
+code_length：00 00 00 0A，转换成10进制表示10，后面继续数10个字节。这10个字节是具体字节码，即该方法被调用时，虚拟机所执行的字节码。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode106.png)
+
+0x2A B7 00 01 2A 04 B5 00 02 B1：具体字节码，即该方法被调用时，虚拟机所执行的字节码。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode107.png)
+
+那么如何确定这些执行的字节码是什么意思呢？
+
+助记符与字节码文件中16进制字节相对应。
+
+字节码查看工具<br/>
+jclasslib<br/>
+https://github.com/ingokege/jclasslib<br/>
+IDEA中安装File->Settings,搜索jclasslib，重启IDEA，在view中查找jclasslib<br/>
+
+https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.aload
+
+助记符与16进制对应表。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode108.png)
+
+aload_0 = 42 (0x2a) 从局部变量加载引用，压入栈顶，即准备执行方法。
+
+invokespecial = 183 (0xb7) 调用父类相关的方法
+
+invokespecial #1
+
+`#1`是参数，对应字节码文件中0xB7后面的两个字节，即0x0001，去常量池中寻找索引为1的常量。那么整个命令的意思就是调用父类的构造方法。
+
+aload_0 = 42 (0x2a) 又是将操作数压入栈顶
+
+iconst_1 = 4 (0x4) 
+
+putfield = 181 (0xb5) 
+
+putfield #2
+
+`#2`是参数，对应字节码文件中0xB5后面的两个字节，即0x0002，去常量池中寻找索引为2的常量。给成员变量赋值，值就是上面压入栈顶的1。
+
+return = 177 (0xb1) 方法返回 void，构造方法没有返回值。
+
 
 
 
