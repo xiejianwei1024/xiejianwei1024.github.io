@@ -510,8 +510,11 @@ attribute_name_index：00 0A，换算成10进制是10，去常量池中找索引
 ![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode112.png)
 
 attribute_length：00 00 00 0A，换算成10进制是10，属性长度为10，往后面数10个字节，0x00 02 00 00 00 03 00 04  00 04，这10个字节是两两对应的，前两个字节00 02表示有两对，为00 00 00 03 和 00 04 00 04。
+
 第1对：00 00 00 03，表示行号为3，其中前两个字节表示偏移量是0，后两个字节表示行号是3。
+
 第2对：00 04 00 04，表示行号为4，其中前两个字节表示偏移量是4，后两个字节表示行号是4。
+
 ![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode113.png)
 
 行号表的jclasslib查看：
@@ -593,9 +596,148 @@ getfield #2
 
 ireturn = 172 (0xac) 从方法中返回一个int。
 
+以上是Code属性表中code的信息。
 
+接下来的两个字节0x 00 00，表示exception_table_length，，异常表长度为0，下面有关异常的就不用看了。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode131.png)
 
+00 02，表示attributes_count，表示构造方法存在两个属性。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode132.png)
 
+attribute_info属性信息又是一个结构体。 
 
+attribute_name_index：00 0A，换算成10进制是10，去常量池中找索引为10的，LineNumberTable。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode133.png)
 
+attribute_length：00 00 00 06，属性长度为6，往后面数6个字节，即0x00 01 00 00 00 07，这6个字节是两两对应的，前两个字节0x0001表示有一对，为0x00 00 00 07：前两个字节0x0000表示偏移量为0，后两个字节0x0007表示行号为7。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode134.png)
 
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode135.png)
+
+行号表的jclasslib查看： 
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode136.png)
+
+以上是构造方法中第一个属性的信息。
+
+下面看第二个属性的信息：
+
+attribute_name_index：00 0B，换算成10进制是11，去常量池中找索引为11的，LocalVariableTable。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode137.png)
+
+attribute_length：00 00 00 0C，换算成10进制是12，属性长度为12，往后面数12个字节，0x00 01 00 00 00 0A 00 0C 00 0D 00 00，这10个字节是两两对应的，前两个字节00 01表示局部变量的个数为1。再后面4个字节0x00 00 00 0A，表示开始位置是0，结束位置是10。0x00表示局部变量的索引是0。0x0C表示局部变量对应常量池中的位置是12，this，表示当前对象。0x000D，表示对局部变量的描述，对应常量池中的位置是13。最后两个字节0x0000，表示做校验检查的。
+
+this,在Java中，每个方法都可以访问this，this表示对当前对象的引用。 在字节码中，如果一个方法是非静态的，是实例方法的话，this是作为方法的第一个参数隐式传递进来。即Java中的任意一个实例方法中，都至少有一个局部变量，this，表示对当前对象的引用。
+
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode138.png)
+
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode139.png)
+
+局部变量表的jclasslib查看： 
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode140.png)
+
+以上是第二个方法的信息，
+
+下面是第三个方法的信息：
+
+access_flags，00 01，表示ACC_PUBLIC，方法是否为public。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode141.png)
+
+name_index，00 10，去常量池中找索引值为16的，表示`setA`。 
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode142.png)
+
+descriptor_index，00 11，去常量池中找索引值为17的，表示`(I)V`。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode143.png)
+
+attributes_count，00 01，表示该方法的属性结构数量是1。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode144.png)
+
+attribute_info的信息如下：
+
+attribute_name_index，00 09，去常量池中寻找索引值为9的，表示Code。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode145.png)
+
+attribute_length：00 00 00 3E，转换成10进制，表示52，那么数52个字节。 
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode146.png)
+
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode147.png)
+
+info[attribute_length]：又是一个结构体，即Code属性表信息，它包含了attribute_name_index和attribute_length。
+
+max_stack：00 02 
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode148.png)
+
+max_locals：00 02 
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode149.png)
+
+code_length：00 00 00 06，表示6，后面继续数6个字节。这6个字节是具体字节码，即该方法被调用时，虚拟机所执行的字节码。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode150.png)
+
+2A 1B B5 00 02 B1 ：具体字节码，即该方法被调用时，虚拟机所执行的字节码。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode151.png)
+
+此时，需要借助jclasslib，观察助记符与16进制对应表。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode152.png)
+
+aload_0 = 42 (0x2a) 从局部变量加载引用，压入栈顶，即准备执行方法。
+
+iload_1 = 27 (0x1b) 从局部变量中加载int，第一个索引对应的int值。
+
+putfield = 181 (0xb5) 设置成员变量的值。
+
+putfield #2
+
+`#2`是参数，对应字节码文件中0xB5后面的两个字节，即0x0002，去常量池中寻找索引为2的常量。给成员变量赋值，值就是上面的第一个索引对应的int值。
+
+return = 177 (0xb1) 方法返回void。
+
+以上是Code属性表中code的信息。
+
+接下来的两个字节0x 00 00，表示exception_table_length，，异常表长度为0，下面有关异常的就不用看了。 
+
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode153.png)
+
+00 02，表示attributes_count，表示构造方法存在两个属性。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode154.png)
+
+attribute_info属性信息又是一个结构体。
+
+attribute_name_index：00 0A，换算成10进制是10，去常量池中找索引为10的，LineNumberTable。
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode155.png)
+
+attribute_length：00 00 00 0A，换算成10进制是10，属性长度为10，往后面数10个字节，0x00 02 00 00 00 0B 00 05 00 0C ，这10个字节是两两对应的，前两个字节00 02表示有两对，为00 00 00 0B 和 00 05 00 0C。 
+
+第1对：00 00 00 0B，表示行号为11，其中前两个字节表示偏移量是0，后两个字节表示行号是11。 
+
+第2对：00 05 00 0C，表示行号为4，其中前两个字节表示偏移量是5，后两个字节表示行号是12。 
+
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode156.png)
+
+行号表的jclasslib查看：
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode157.png)
+
+以上是构造方法中第一个属性的信息。
+
+下面看第二个属性的信息：
+
+attribute_name_index：00 0B，换算成10进制是11，去常量池中找索引为11的，LocalVariableTable。 
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode158.png)
+
+attribute_length：00 00 00 16，换算成10进制是22，属性长度为22，往后面数22个字节，即
+0x00 02 00 00 00 06 00 0C 00 0D 00 00 00 00 00 06 00 05 00 06 00 01。这22个字节是两两对应的，前两个字节0x0002表示局部变量个数为2，再后面四个字节0x00 00 00 06，表示开始位置是0，结束位置是6。<br/>
+0x00表示局部变量的索引是0。0x0C表示局部变量对应常量池中的位置是12，this，表示当前对象。0x00 0D，表示对局部变量的描述，对应常量池中的位置是13。最后两个字节0x00 00，表示做校验检查的。<br/>
+再后面四个字节0x00 00 00 06，表示开始位置是0，结束位置是6。0x00表示局部变量的索引是0。0x05表示表示局部变量对应常量池中的位置是6，a。0x00 06表示，对局部变量的描述，对应常量池中的位置是6，表示int类型。最后两个字节0x00 01，表示做校验检查的。
+
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode159.png)
+
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode160.png)
+
+局部变量表的jclasslib查看：
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode161.png)
+
+后面的字节属于当前字节码的属性，0x 00 01 00 12 00 00 00 02 00 13
+![classloader](https://raw.githubusercontent.com/xiejianwei1024/markdownphotos/master/jvm/bytecode162.png)
+
+0x0001，表示属性的个数为1，<br/>
+0x0012，表示属性名称的索引为18，对应常量池中SourceFile，<br/>
+0x0002，表示属性名称的长度为2个字节，<br/>
+0x0013，表示源文件真正的值13，对应常量池中MyTest1.java<br/>
