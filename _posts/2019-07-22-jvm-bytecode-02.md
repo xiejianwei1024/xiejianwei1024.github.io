@@ -53,7 +53,8 @@ public class MyTest2 {
 首先，用反编译命令查看MyTest.class文件。
 
 第一步：进入目录：D:\IdeaProjects\jvm_study\out\production\classes>
-第二步：输入命令：javap -verbose -p com.shengsiyuan.jvm.bytecode.MyTest2
+
+第二步：输入命令：javap -verbose -p com.jvm.bytecode.MyTest2
 
 ```java
 D:\IdeaProjects\jvm_study\out\production\classes>javap -verbose -p com.jvm.bytecode.MyTest2
@@ -405,19 +406,41 @@ SourceFile: "MyTest2.java"
 
 接下来，针对上面的字节码文件进行分析：
 
+前4个字节为魔数：Magic Number，`CA FE BA BE`。 
 
+```
+00000000  CA FE BA BE 00 00 00 34  00 49 0A 00 0E 00 2F 08
+```
 
+魔数之后的4个字节为版本信息：Version，`00 00 00 34`，前两个字节表示minor version（次版本号），后两个字节表示major version（主版本号）。换算成十进制，表示次版本号为0，主版本号为52。其中52对应jdk版本为1.8。 
 
+紧接着主版本号之后的就是常量池入口：常量池主要由常量池数量与常量池数组（常量表）这两部分共同构成。常量池数量紧跟在主版本号后面，占据两个字节；常量池数组则紧跟在常量池数量之后。
 
+常量池数量为两个字节：`00 49`，换算成10进制，表示73。
 
+常量表的分析要用到的表格可以再上一篇文件中找到。
 
+常量池数组（常量表）中不同的元素的类型、结构都是不同的，长度当然也不同；但是，每一种元素的第一个数据都是u1类型，该字节是个标志位，占据1个字节。
 
+常量表的第一个元素的第一个数据是：`0A`，换算成10进制，表示10，去表格中找u1类型，值为10的，Methodref。
 
+CONSTANT_Methodref_Info：该常量包含三部分， tag,index,index。我们已经知道tag的值。
 
+第一个index：`00 0E`，换算成10进制，表示14。指向声明方法的类描述符CONSTANT_Class_info的索引项。<br/>
 
+第二个index：`00 2F`，换算成10进制，表示47。指向名称及类型描述符CONSTANT_NameAndType_info的索引项。 
 
+以上是常量池中第一个元素的信息：`0A 00 0E 00 2F`，表示Methodref。
 
+```
+00000010  00 30 09 00 05 00 31 09  00 05 00 32 07 00 33 0A
+```
 
+常量表的第二个元素的第一个数据是：`08`，表示8，去表格中找u1类型，值为8的，String。
+
+CONSTANT_String_Info：该常量包含两部分， tag,index。我们已经知道tag的值。
+
+index：`00 30`，换算成10进制，表示48。
 
 
 
